@@ -35,6 +35,16 @@
 - [Chapter 4: Training Data](#chapter-4-training-data)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
+  - [Evaluating ML Models](#evaluating-ml-models)
+    - [Six tips for Model Selection](#six-tips-for-model-selection)
+    - [Ensembles](#ensembles)
+  - [Experiment Tracking and Versioning](#experiment-tracking-and-versioning)
+    - [Experiment Tracking](#experiment-tracking)
+    - [Versioning](#versioning)
+  - [Debugging  ML Models](#debugging--ml-models)
+  - [Model Offline Evaluation](#model-offline-evaluation)
+    - [Baselines](#baselines)
+    - [Evaluation Methods](#evaluation-methods)
 - [Chapter 7: Model Deployment and Prediction Service](#chapter-7-model-deployment-and-prediction-service)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
@@ -185,7 +195,7 @@ It is often desirable for relations to be normalized. **Data normalization** can
 
 Most popular query language - SQL
 - Declarative language
-- With certain added features, SWL can be Turing-complete
+- With certain added features, SQL can be Turing-complete
 
 ### NoSQL
 For certain use cases, relational data model can be restrictive. (demands data follows a strict schema, painful schema management)
@@ -309,7 +319,7 @@ Tools for streaming data: Apache Flink, KSQL, Spark Streaming
 
 
 # Chapter 4: Training Data
-
+Data is full of potential biases. These biases can have many possible causes. There are biases caused during collecting, sampling or labelling. Historical data might be embedded with human biases, and ML models trained on this data can perpetuate them. Use data but don't trust it too much!
 
 
 
@@ -323,7 +333,163 @@ Tools for streaming data: Apache Flink, KSQL, Spark Streaming
 
 # Chapter 6: Model Development and Offline Evaluation
 
+## Evaluating ML Models
+Classical ML algorithms is not going away. 
+- Many recommender systems still rely on collaborative filtering and matrix factorization.
+- Tree-based algorithms, including gradient-boosted trees, still power many classification tasks with strict latency requirements.
 
+Neural networks and classic ML algorithms can be used in tandem.
+- A k-means clustering model might be used to extract features to input into a neural network
+- A pretrained neural network (like BERT and GPT-3) might be used to generate embeddings to input into a logistic regression model
+
+When selecting a model for your problem, you don't choose from every possible model out there, but usually focus on a set of models suitable for your problem. Therefore, knowledge of common ML tasks and the typical approaches to solve them is essential in the process.
+- Detect toxic tweets (text classification) - naives Bayes, logistic regression, RNN, transformer-based models such as BERT, GPT
+- Detect fradulent transactions (classic abnormality detection) - k-nearest neighbors, isolation forest, clustering, and neural networks
+
+When considering what model to use, besides of model's performance (eg: accuracy, F1 score), other properties, such as how much data, compute and time required for training, inference latency and interpretability is also important to consider.
+
+
+> **_NOTE:_** To understand different algorithms, the best way is to equip yourself with basic ML knowledge and run experiments with the algorithms you're interested in
+
+> **_NOTE:_** To keep up to date with so many new ML techniques and models, the author recommends to monitor trends at major ML conferences such as NeurIPS, ICLR and ICML, as well as following researchers whose work has a high signal-to-noise ratio on Twitter.
+
+
+### Six tips for Model Selection
+1. Avoid the state-of-the-art trap
+2. Start with the simplest models
+3. Avoid human biases in selecting models
+4. Evaluate good performance now versus good performance later
+5. Evaluate trade-offs
+6. Understand your model's assumptions
+
+**1. Avoid the state-of-the-art trap**
+- Researcher usually evaluate models in academic settings, SOTA often means that it performs better on some static datasets.
+- It doesn't mean this model will be fast or cheap enough for implementation, or even this model will perform better than other simpler models
+- The most important thing to do when solving a problem is finding solutions that can solve that problem
+
+**2. Start with the simplest models**
+- Zen of Python - "**simple is better than complex**"
+- Easier to deploy, and deploying early **allows you to validate that your prediction pipeline** is consistent with your training pipeline
+- Starting with something simple and adding more complex components step-by-step makes it **easier to understand** your model and debug it
+- Simplest model serves as a baseline to compare with more complex models
+- Example: Bert can be easy to implement due to the community around this solution, but hard to debug
+
+**3. Avoid human biases in selecting models**
+- An engineer will likely spend more time experimenting an architecture they are more excited about, which might result in better-performing models for that architecture
+- When comparing different architectures, it's important to **compare them under comparable setups**
+
+**4. Evaluate good performance now versus good performance later**
+- The best model now does not always mean the best model in the future. For example, tree-based model can be better now, but neural network can outperform when there are more data in the future
+- One can use learning curves to get a sense of whether one can expect more performance gain from more training data
+- While evaluating models, you might want to **take into account their potential for improvements** in the near future and how easy/difficult it is to achieve those improvements
+
+**5. Evaluate trade-offs**
+- Example
+  - false positives vs false negative
+  - compute requirements vs accuracy
+  - interpretability vs performance
+- Understanding what is important in the performance of your ML system will help you choose the most suitable model
+
+**6. Understand your model's assumptions**
+- "All models are wrong, but some are useful" - George Box
+- Understanding whether our data satisfies the assumptions of the model can help us evaluate the model that works best
+- Assumptions
+  - *Prediction assumption* - Predictive model assume that it is possible to predict Y based on X
+  - *Independent and Identically Distributed (IID)* - Neural networks assume that all examples are independently drawn from the same joint distribution
+  - *Smoothness* - Supervised machine learning method assumes that there is a smooth function to transform input to output
+  - *Tractability* - Generative model assumes that it's tractable to compute the probability `P(Z|X)`, where `Z` is the latent representation of `X`
+  - *Boundaries* - A linear classifier assumes that the decision boundaries are linear
+  - *Conditional independence* - A naive Bayes classifier assumes that the attribute values are independent of each other given the class
+  - *Normal distributed* 
+
+### Ensembles
+- Use an emsemble of multiple models instead of just an individual model to make prediction. Each model in the ensemble is called a *base learner*
+- High rate of winning solution in Kaggle and [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/explore/v2.0/dev/)
+- More complex to deploy and hard to maintain, hence less favored in production
+- When creating an ensemble, the less correlation there is among base learners, the better the ensemble will be. (eg: one transformer model, one RNN, one gradient-boosted tree)
+- Type of ensembles
+  - Bagging (bootstrap aggregating)  
+    Given a dataset, sample with replacement to create different datasets (called bootstrap), and train a classification or regression model on each of these bootstraps. (eg: Random Forest)
+  - Boosting  
+    Boosting is a family of iterative ensemble algorithms that convert weak learners to strong ones. The samples are weighted differently among iterations, where future weak learners focus more on the misclassified examples. (eg: GBM - XGBoost, LightGBM)
+  - Stacking  
+    Create a meta-learner that combines the outputs of the base learners to output final predictions
+
+## Experiment Tracking and Versioning
+During the model development process, you often have to **experiment with many architectures and many different models**. It is important to keep track of all the definition needed to re-create an experiment and its relevant artifacts. An **artifact** is a file generated during an experiment (eg: loss curve, logs graph, intermediate results).
+
+This enables you to compare different experiments and choose the best suited one. It helps the understnaing of how small changes affect model's performance.
+
+The process of tracking the progress and results of an experiment is called **experiment tracking**. The process of logging all the details of an experiment is called **versioning**.
+
+Experiment Tracking Tools: MLFlow, Weights & Biases  
+Versioning Tools: DVC
+
+### Experiment Tracking
+It is important to track what's going on during training, not only to detect and address these issues, but also to evaluate whether the model is learning anything useful (eg: loss not decreasing, overfitting, underfitting).
+
+Things to track:
+- Loss curve corresponding to train and eval splits
+- Model performance metrics (eg: accuracy, F1 score)
+- Log of corresponding sample, prediction and ground truth label
+- The speed
+- System performance metrics (eg: RAM, CPU/GPU utilization)
+- Parameter and hyperparameter
+
+Tracking gives you observability into the state of the model, especially when something happens.
+
+### Versioning
+ML systems are part code, part data, so both need to be versioned.
+
+Challenge of data versioning:
+- Data is often larger than code, we can't use the same strategy to version data
+- A line in data can be indefinitely long, especially if it's stored in a binary format. Specifying a diff can be not helpful
+- Dataset can be so large than duplicating it multiple times across different versions might be unfeasible
+- A dataset might not fit into a local machine
+- Definition of a diff when versioning data
+- Resolving merge conflicts can be challenging (especially when there is privacy law such as General Data Protection Regulation (GDPR))
+
+As of 2021, data versioning tools like DVC only register a diff if the checksum of the total directory has changed and if a file is removed or added.
+
+Aggressive tracking and versioning helps with reproducibility, but it doesn't ensure reproducibility. The framework and hardware might introduce nondeterminism to the experiment results.
+
+## Debugging  ML Models
+Reasons that an ML model can fail:
+- Theoretical constraints
+- Poor implementation of model
+- Poor choice of parameters
+- Data problems
+- Poor choice of features
+
+Tried-and-true debugging techniques by experienced ML engineers
+- **Start simple and gradually add more components** -If you want to use a BERT-like model, which use both a masked language model (MLM) and next sentence prediction (NSP) loss, you might want to use only the MLM loss before adding NLS loss
+- **Overfit a single branch** - Try to overfit a small amount of data. If it can't overfit, there might be something wrong with the implementation
+- **Set a random seed** - to ensure consistency between different runs
+
+
+
+
+
+## Model Offline Evaluation
+"How can I know that our ML models are any good?"  
+
+### Baselines
+- Random baseline
+- Simple heuristic
+- Zero rule baseline
+- Human baseline
+- Existing solutions
+
+### Evaluation Methods
+- Pertubation tests
+- Invariance tests
+- Directional expectation tests
+- Model calibration
+- Confidence measurement
+- Slice-based evaluation
+  - Heuristics-based
+  - Error analysis
+  - Slice finder
 
 
 
