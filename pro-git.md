@@ -32,11 +32,23 @@
     - [Unstaging a staged file and unmodifying a modified file with `git restore`](#unstaging-a-staged-file-and-unmodifying-a-modified-file-with-git-restore)
   - [Working with Remotes](#working-with-remotes)
     - [Showing your remotes](#showing-your-remotes)
-    - [Adding Remote Repositories](#adding-remote-repositories)
-    - [Fetching and Pulling from your remotes](#fetching-and-pulling-from-your-remotes)
+    - [Adding remote repositories](#adding-remote-repositories)
+    - [Fetching and pulling from your remotes](#fetching-and-pulling-from-your-remotes)
     - [Pushing to your remotes](#pushing-to-your-remotes)
     - [Inspecting a remote](#inspecting-a-remote)
     - [Renaming and removing remote](#renaming-and-removing-remote)
+  - [Tagging](#tagging)
+    - [Listing your tags](#listing-your-tags)
+    - [Creating Tags](#creating-tags)
+      - [Tagging old commit](#tagging-old-commit)
+    - [Sharing tags](#sharing-tags)
+    - [Deleting tags](#deleting-tags)
+    - [Check out tags](#check-out-tags)
+  - [Git Aliases](#git-aliases)
+- [Git Branching](#git-branching)
+  - [Understanding the way Git does branching](#understanding-the-way-git-does-branching)
+    - [Creating a new branch](#creating-a-new-branch)
+    - [Switching to a new branch](#switching-to-a-new-branch)
 
 # Getting Started
 ## History of Version Control
@@ -570,7 +582,7 @@ origin	https://github.com/schacon/ticgit (push)
 
 You can have multiple remotes with different names and URLs.
 
-### Adding Remote Repositories
+### Adding remote repositories
 ``` shell
 git remote add <shortname> <url>
 ```
@@ -584,7 +596,7 @@ Now, you can use `pb` on the command line in lieu of the whole URL.
 git fetch pb
 ```
 
-### Fetching and Pulling from your remotes
+### Fetching and pulling from your remotes
 ``` shell
 git fetch <remote>
 ```
@@ -636,3 +648,275 @@ You can run `git remote remove <shortname>` to remove a remote.
 ``` shell
 git remote remove paul
 ```
+
+## Tagging
+Git has the ability to tag specific points in a repository's history as being important. Typically, people use tag to mark release points (`v1.1`, `v1.2` and so on).
+### Listing your tags
+``` shell
+git tag
+# equivalent to
+git tag -l
+```
+
+Search for tags that match a particular pattern.
+``` shell
+$ git tag -l "v1.8.5*"
+v1.8.5
+v1.8.5-rc1
+...
+```
+
+### Creating Tags
+Git provides two types of tags: **lightweight** and **annotated**.
+
+A lightweight tag is just a pointer to a specific command. 
+
+An annotated tag is stored as full objects in Git database and contains more information such as tagger name, email, date, tagging message. They're checksummed and can be signed and verified with GNU Privacy Guard (GPG). Therefore, annotated tags are preferred.
+
+To create an annotated tag, the easiest way is to specify `-a` when running `git tag`.
+``` shell
+git tag -a v1.4 -m "version 1.4"
+```
+`-m` specifies the tagging message, which is stored with the tag. If it is not specified, editor will be launched which is similar to `git commit`.
+
+You can see the tag data and the commit info using `git show`
+``` shell
+$ git show v1.4
+tag v1.4
+Tagger: Ben Straub <ben@straub.cc>
+Date:   Sat May 3 20:19:12 2014 -0700
+
+my version 1.4
+
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    Change version number
+```
+
+To create a lightweight tag, just provide the tag name without additional information `git tag <tagname>`
+``` shell
+git tag v1.4-lw
+```
+
+``` shell
+$ git show v1.4-lw
+commit ca82a6dff817ec66f44342007202690a93763949
+Author: Scott Chacon <schacon@gee-mail.com>
+Date:   Mon Mar 17 21:52:11 2008 -0700
+
+    Change version number
+```
+
+#### Tagging old commit
+Suppose you want to tag specified commit, you can use `git tag -a <tagname> <commmit hash>`.
+``` shell
+git tag -a v1.2 9fceb02
+```
+
+### Sharing tags
+By default, `git push` doesn't transfer tags to the remote server. Hence, you need to explicitly push the tags after they are created. It works like sharing remote branch, run `git push origin <tagname>`
+``` shell
+$ git push origin v1.5
+Counting objects: 14, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (12/12), done.
+Writing objects: 100% (14/14), 2.05 KiB | 0 bytes/s, done.
+Total 14 (delta 3), reused 0 (delta 0)
+To git@github.com:schacon/simplegit.git
+ * [new tag]         v1.5 -> v1.5
+```
+
+If we want to push all tags at once, use `--tags` option. This will push both types of tags.
+``` shell
+$ git push origin --tags
+Counting objects: 1, done.
+Writing objects: 100% (1/1), 160 bytes | 0 bytes/s, done.
+Total 1 (delta 0), reused 0 (delta 0)
+To git@github.com:schacon/simplegit.git
+ * [new tag]         v1.4 -> v1.4
+ * [new tag]         v1.4-lw -> v1.4-lw
+```
+
+To push only the annotated tags, use `--follow-tags` option.
+
+### Deleting tags
+Delete tag locally, use `git tag -d <tagname>`.
+``` shell
+git tag -d v1.4-lw
+```
+
+Delete tag on remote server, there are 2 common variations
+1. `git push <remote> :refs/tags/<tagname>`
+  ``` shell
+  $ git push origin :refs/tags/v1.4-lw
+  To /git@github.com:schacon/simplegit.git
+  - [deleted]         v1.4-lw
+  ```
+2. `git push origin --delete <tagname>`
+
+### Check out tags
+To view the version of files a tag is pointing to, you can run `git checkout <tagname>`. This will put your repository in "detached HEAD" state.
+
+``` shell
+$ git checkout v2.0.0
+Note: switching to 'v2.0.0'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by performing another checkout.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 99ada87... Merge pull request #89 from schacon/appendix-final
+```
+
+In “detached HEAD” state, if you make changes and then create a commit, the tag will stay the same, but your new commit won’t belong to any branch and will be unreachable, except by the exact commit hash.
+
+Therefore, you will generally want to create a branch
+``` shell
+$ git checkout -b version2 v2.0.0
+Switched to a new branch 'version2'
+```
+
+## Git Aliases
+If you don't want to type the entire text of some Git commands, you can set up alias using `git config`
+
+``` shell
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.st status
+```
+This means that typing `git ci` will run `git commit`.
+
+Alias can also be helpful to create commands that are more intuitive.  
+Example 1:
+``` shell
+git config --global alias.unstage 'reset HEAD --'
+```
+
+This makes the following commands to be equivalent
+``` shell
+git unstage fileA
+git reset HEAD -- fileA
+```
+
+Example 2:
+``` shell
+git config --global alias.last 'log -1 HEAD'
+```
+
+``` shell
+$ git last
+commit 66938dae3329c7aebe598c2246a8e6af90d04646
+Author: Josh Goebel <dreamer3@example.com>
+Date:   Tue Aug 26 19:48:51 2008 +0800
+
+    Test for current head
+
+    Signed-off-by: Scott Chacon <schacon@example.com>
+```
+
+You can also set up alias for non Git command, by starting the command with `!` character.
+
+``` shell
+git config --global alias.visual '!gitk'
+```
+
+# Git Branching
+Git's branching model is said to be its 'killer feature'. It is incredibly lightweight which makes it nearly instantaneous. Git encourages workflows that branch and merge often. Understanding and mastering this feature can entirely change the way that you develop.
+
+## Understanding the way Git does branching
+When making a commit, Git stores a commit object that contains pointer to the snapshot of the content you staged. The commit object contains author's name and email address, commit message, and pointers to the commits or commits that directly came before this commit. (initial commit - no parents, merged commit - multiple parents)
+
+When you stage the files, Git compute the checksum of each file (SHA-1), stores that version in Git repository (Git refers to them as blobs), and adds this checksum into the staging area.
+
+When you create a commit by running `git commit`, Git compute the checksum of each subdirectory, and stores them as a tree object in the Git repository. Git then creates the commit object that has the metadata and a pointer to the tree object.
+
+![](https://git-scm.com/book/en/v2/images/commit-and-tree.png)
+
+When you make changes and commit again, the next commit stores the pointer to the commit that came immediately before it.
+
+![](https://git-scm.com/book/en/v2/images/commits-and-parents.png)
+
+A branch in Git is simply a lightweight movable pointer to one of these commits. Every time you commit, the branch pointer moves forward automatically.
+
+![](https://git-scm.com/book/en/v2/images/branch-and-history.png)
+
+### Creating a new branch
+When you create a new branch, Git creates a new pointer to the same commit.
+``` shell
+git branch testing
+```
+![](https://git-scm.com/book/en/v2/images/two-branches.png)
+
+Git keeps a special pointer called `HEAD` to identify the branch you are currently on. This behaviour can be observed by running `git log --oneline --decorate`. Do note that --decorate is the default behaviour since Git version 2.13, so it can be left out.
+``` shell
+$ git log --oneline --decorate
+f30ab (HEAD -> master, testing) Add feature #32 - ability to add new formats to the central interface
+34ac2 Fix bug #1328 - stack overflow under certain conditions
+98ca9 Initial commit
+```
+
+### Switching to a new branch
+`git branch` only creates the branch and doesn't switch to the branch. To switch to the new branch, run `git checkout <branch-name>`.
+``` shell
+git checkout testing
+```
+
+As it is typical to create a new branch and want to switch to that new branch, this can be done by
+``` shell
+git checkout -b <newbranchname>
+```
+
+This moves `HEAD` to point to the testing branch.
+![](https://git-scm.com/book/en/v2/images/head-to-testing.png)
+
+When we make a commit, the `HEAD` branch will move forward, while the other branches will still point to the commit they were on.
+``` shell
+echo "New message" > test.md
+git commit -a -m 'made a change'
+```
+![](https://git-scm.com/book/en/v2/images/advance-testing.png)
+
+If we switch back to master and make modification
+``` shell
+git checkout master
+```
+``` shell
+echo "Another message" > test.md
+git commit -a -m 'made other change'
+```
+![](https://git-scm.com/book/en/v2/images/checkout-master.png)
+![](https://git-scm.com/book/en/v2/images/advance-master.png)
+
+There will be a divergent history, which can be visualize by running `git log`
+``` shell
+$ git log --oneline --decorate --graph --all
+* c2b9e (HEAD, master) Made other changes
+| * 87ab2 (testing) Made a change
+|/
+* f30ab Add feature #32 - ability to add new formats to the central interface
+* 34ac2 Fix bug #1328 - stack overflow under certain conditions
+* 98ca9 initial commit of my project
+```
+
+Because a branch in Git is actually a simple file that contains the 40 character SHA-1 checksum of the commit it points to, branches are cheap to create and destroy. Creating a new branch is as quick and simple as writing 41 bytes to a file (40 characters and a newline).
+
+Because we’re recording the parents when we commit, finding a proper merge base for merging is automatically done for us and is generally very easy to do. These features help encourage developers to create and use branches often
+
+From Git version 2.23 onwards, you can use `git switch` instead of `git checkout`.
+- Switch to an existing branch: `git switch <testing-branch>`.
+- Create a new branch and switch to it: `git switch -c <new-branch>`. The `-c` flag stands for create, you can also use the full flag: `--create`.
+- Return to your previously checked out branch: `git switch -`.
