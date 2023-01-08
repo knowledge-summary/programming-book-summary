@@ -49,6 +49,34 @@
   - [Understanding the way Git does branching](#understanding-the-way-git-does-branching)
     - [Creating a new branch](#creating-a-new-branch)
     - [Switching to a new branch](#switching-to-a-new-branch)
+  - [Basic Branching and Merging](#basic-branching-and-merging)
+    - [Basic merging](#basic-merging)
+    - [Basic merge conflicts](#basic-merge-conflicts)
+  - [Branch Management](#branch-management)
+    - [Branch Management](#branch-management-1)
+    - [Changing a branch name](#changing-a-branch-name)
+  - [Git Workflow](#git-workflow)
+    - [Long-running branches](#long-running-branches)
+    - [Topic branches](#topic-branches)
+  - [Remote branches](#remote-branches)
+    - [Push branch to remote](#push-branch-to-remote)
+    - [Fetching branch from remote and work with it](#fetching-branch-from-remote-and-work-with-it)
+    - [`git pull`](#git-pull)
+    - [Delete a remote branch](#delete-a-remote-branch)
+  - [Rebasing](#rebasing)
+    - [More complicated rebase](#more-complicated-rebase)
+    - [When not to rebase](#when-not-to-rebase)
+    - [Rebase when doing `git pull`](#rebase-when-doing-git-pull)
+    - [Commit History](#commit-history)
+- [Git on the Servers](#git-on-the-servers)
+- [Distributed Git](#distributed-git)
+  - [Workflow Type](#workflow-type)
+    - [Centralized Workflow](#centralized-workflow)
+    - [Integration-Manager Workflow](#integration-manager-workflow)
+    - [Dictator and Lieutenants Workflow](#dictator-and-lieutenants-workflow)
+  - [Contributing to a Project](#contributing-to-a-project)
+  - [Maintaining a Project](#maintaining-a-project)
+- [Github](#github)
 
 # Getting Started
 ## History of Version Control
@@ -188,12 +216,18 @@ To check the value of a git setting
 git config user.name  # return John Doe
 ```
 
+If you are using a HTTPS url to push over, Git will ask for your username and password for authentication. If you want to avoid typing it every single time you push, you can set up a "credential cache".
+``` shell
+git config --global credential.helper cache
+```
+
 ### Getting help
 ``` shell
 git help <verb>
 git <verb> --help
 man git <verb>
 ```
+
 
 # Git Basics
 ## Initializa a Repository 
@@ -571,7 +605,11 @@ $ cd ticgit
 $ git remote
 origin
 ```
-`origin` is the default name Git gives to the server you cloned from.
+
+`origin` is the default name Git gives to the server you cloned from. You can also set the name using `-o` option.
+``` shell
+git clone -o booyah https://github.com/schacon/ticgit
+```
 
 Specify `-v` will show you the URLs that Git stores for the short name.
 ``` shell
@@ -834,6 +872,7 @@ You can also set up alias for non Git command, by starting the command with `!` 
 git config --global alias.visual '!gitk'
 ```
 
+
 # Git Branching
 Git's branching model is said to be its 'killer feature'. It is incredibly lightweight which makes it nearly instantaneous. Git encourages workflows that branch and merge often. Understanding and mastering this feature can entirely change the way that you develop.
 
@@ -920,3 +959,477 @@ From Git version 2.23 onwards, you can use `git switch` instead of `git checkout
 - Switch to an existing branch: `git switch <testing-branch>`.
 - Create a new branch and switch to it: `git switch -c <new-branch>`. The `-c` flag stands for create, you can also use the full flag: `--create`.
 - Return to your previously checked out branch: `git switch -`.
+
+## Basic Branching and Merging
+Example of real life workflow
+1. Do some work on main branch
+2. Create a branch to work on new user story.
+3. Receive a call to carry out hotfix for critical issue.
+4. Switch back to the production branch.
+5. Create a hotfix branch.
+6. After the hotfix is tested, merge it to the main branch and push to production.
+7. Switch back to the original user story and continue working.
+
+Using the steps in the previous session, you create the user story branch and add new commit.
+![](https://git-scm.com/book/en/v2/images/basic-branching-3.png)
+
+Now you receive the call requesting the hotfix, you are switching back to the `master` branch.
+
+Do note that if your working directory or staging area has uncommitted changes that conflicts with the branch you're checking out, Git will return an error. It is best to have a clean working state when you switch branch.
+``` shell
+git checkout master
+```
+
+### Basic merging
+Create a hotfix branch and commit the fix.
+``` shell
+$ git checkout -b hotfix
+Switched to a new branch 'hotfix'
+$ vim index.html
+$ git commit -a -m 'Fix broken email address'
+[hotfix 1fb7853] Fix broken email address
+ 1 file changed, 2 insertions(+)
+```
+![](https://git-scm.com/book/en/v2/images/basic-branching-4.png)
+
+After the hotfix is tested and work as intended, checkout to the `master` branch and run `git merge` to merge the `hotfix` branch with the `master branch`.
+
+``` shell
+$ git checkout master
+$ git merge hotfix
+Updating f42c576..3a0874c
+Fast-forward
+ index.html | 2 ++
+ 1 file changed, 2 insertions(+)
+```
+
+You'll notice the phrase "fast-forward" in the merge. Because the commit `C4` pointed to by the branch hotfix you merged in was directly ahead of the commit `C2` you're on, Git simply moves the pointer forward.
+
+when you try to merge one commit with a commit that can be reached by following the first commit’s history, Git simplifies things by moving the pointer forward because there is no divergent work to merge together — this is called a "fast-forward."
+
+![](https://git-scm.com/book/en/v2/images/basic-branching-5.png)
+
+After that, you delete the hotfix branch and switch back to the original user story to continue the work.
+``` shell
+$ git branch -d hotfix
+Deleted branch hotfix (3a0874c).
+```
+
+``` shell
+$ git checkout iss53
+Switched to branch "iss53"
+$ vim index.html
+$ git commit -a -m 'Finish the new footer [issue 53]'
+[iss53 ad82d7a] Finish the new footer [issue 53]
+1 file changed, 1 insertion(+)
+```
+
+![](https://git-scm.com/book/en/v2/images/basic-branching-6.png)
+
+It is worth noting that the work done in hotfix is not yet applied to your user story branch.
+
+Let say you have completed your user story and it is ready to be merged to the `master` branch. You will do a `git merge`, similar to what you do to the `hotfix` branch. There are several situation that can happen.
+
+``` shell
+$ git checkout master
+Switched to branch 'master'
+$ git merge iss53
+Merge made by the 'recursive' strategy.
+index.html |    1 +
+1 file changed, 1 insertion(+)
+```
+
+As the development history has diverged from some older point, the commit on the user story branch is not a direct ancestor of the `master` branch, Git has to do some works. In this case , Git does as simple three-way merge, using the two snapshots pointed to by the branch tips and the common ancestor of the two.
+
+![](https://git-scm.com/book/en/v2/images/basic-merging-1.png)
+
+In this case, Git will create a new snapshot resulted from the three-way merge and automatically create a new commit that points to it. This is referred to as a merge commit.
+
+![](https://git-scm.com/book/en/v2/images/basic-merging-2.png)
+
+
+### Basic merge conflicts
+Ocassionally, this process doesn't go smoothly. This happens when you changed the same part of the same file in two branches you are merging. Git won't be able to handle the merge itself.
+``` shell
+$ git merge iss53
+CONFLICT (add/add): Merge conflict in index.html
+Auto-merging index.html
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Git will ask you to resolve the merge conflict. Running `git status` will show the conflicted file.
+``` shell
+$ git status
+On branch master
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+
+    both modified:      index.html
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Opening the file that have merge conflict will show a section as follows. Git add standard conflict-resolution markers to the files that have conflicts.
+``` shell
+<<<<<<< HEAD:index.html
+<div id="footer">contact : email.support@github.com</div>
+=======
+<div id="footer">
+ please contact us at support@github.com
+</div>
+>>>>>>> iss53:index.html
+```
+
+This means the version in HEAD is the top part of that block (everything above the =======), while the version in your user story branch looks like everything in the bottom part.
+
+To solve the merge conflict, you can merge the content yourself.
+``` shell
+<div id="footer">
+please contact us at email.support@github.com
+</div>
+```
+
+After that, run `git add` to mark a file as resolved. If you are happy with the changes, use `git commit` to finalize the merge commit.
+
+`git mergetools` can also be used to fire up an appropriate visual merge tool and walks you through the conflict.
+
+## Branch Management
+### Branch Management
+Use `git branch` to see the list of branches
+``` shell
+$ git branch
+  iss53
+* master 
+  testing
+```
+`*` indicates the current checked out branch.
+
+To see the last commit of each branch, add `-v`
+``` shell
+$ git branch -v
+  iss53 93b412c Fix javascript issue
+* master 7a98805 Merge branch 'iss53'
+  testing 782fd34 Add scott to the author list in the readme
+```
+
+`--merged` and `--no-merged` option can be used to filter the branches that you have and have not yet merged into the branch you're currently on.
+``` shell
+$ git branch --merged
+  iss53
+* master
+```
+
+``` shell
+$ git branch --no-merged
+  testing
+```
+You can also provide a branch name to show the merge state with respect to a certain branch.
+``` shell
+$ git checkout testing
+$ git branch --no-merged master
+  topicA
+  featureB
+```
+
+Because the `testing branch` isn't merged, trying to delete it with `git branch -d` will fail.
+``` shell
+$ git branch -d testing
+error: The branch 'testing' is not fully merged.
+If you are sure you want to delete it, run 'git branch -D testing'.
+```
+Git message shows that you can force delete the branch using `-D` option.
+
+### Changing a branch name
+Suppose you name a branch inappropriately and want to change the name from `bad-name` to `good-name`.
+
+Rename the branch locally with the `git branch --move`
+``` shell
+git branch --move bad-name good-name
+```
+
+The branch name is changed but only locally, to show it in the remote, push it.
+``` shell
+git push --set-upstream origin good-name
+```
+
+``` shell
+$ git branch --all
+* good-name
+  main
+  remotes/origin/bad-name
+  remotes/origin/good-name
+  remotes/origin/main
+```
+
+The `good-name` branch is in remote now. However, notice that the `bad-name` is still present in remote too, you can delete it.
+``` shell
+git push origin --delete bad-name
+```
+
+If you are renaming an important branch, before deleting the old branch remotely, make sure to work with the collaborators to update the code, configuration , build scripts, documentation and close the pull requests to the old branch.
+
+## Git Workflow
+### Long-running branches
+Many Git developer have a workflow that embraces the approach of having several branches that are long lived and used for different stages of development cycle.
+![](https://git-scm.com/book/en/v2/images/lr-branches-2.png)
+
+An example is having the stable and production ready code on `master` branch, and having another branch called `develop` or `next` that the developer works on and merge to `master` branch once it is stable. Some larger projects might have more long-running branches such as a `proposed` or `pu` branch. 
+
+### Topic branches
+Topic branches is a short-lived branch that are used for a single particular feature or related work. You did a few commits on them, merge them to the long-running branches, and delete them.
+
+Topic branches allow you to switch context quickly and completely. Your work is separated and you can compare them easily.
+
+![](https://git-scm.com/book/en/v2/images/topic-branches-1.png)
+![](https://git-scm.com/book/en/v2/images/topic-branches-2.png)
+
+## Remote branches
+Remote-tracking branch are references to the state of remote branches. It takes the form `<remote>/<branch>`. For example, when you `git clone`, you will have a local `master` branch and also the tracking branch `origin/master` locally.
+
+The branch that the tracking branch is tracking is called "upstream branch". Tracking branches have a direct relationship with the remote branch, and it will support Git remote server related commands, such as `git pull`.
+
+![](https://git-scm.com/book/en/v2/images/remote-branches-1.png)
+
+The commit history in remote server, local `origin/master` branch and `master` branch can diverge.
+
+![](https://git-scm.com/book/en/v2/images/remote-branches-2.png)
+
+To synchronize the work with a given remote, run `git fetch <remote>` command (`git fetch origin`). This command will fetch the changes from the remote server, update the local database and move your `origin/master` pointer to the up-to-date position.
+
+![](https://git-scm.com/book/en/v2/images/remote-branches-3.png)
+
+You can have multiple remote server, they will be show at `<remote>/<branch>`.
+![](https://git-scm.com/book/en/v2/images/remote-branches-5.png)
+
+### Push branch to remote
+You have to explicitly push the branches you want to share. If you have a branch name `serverfix` that you want to share. You can push it using `git push <remote> <branch>`. 
+``` shell
+git push origin serverfix
+```
+
+In the background, Git will expand the branch name `serverfix` to `refs/heads/serverfix:refs/heads/serverfix`.
+
+You can also do a more explicit command.
+``` shell
+git push origin serverfix:serverfix
+```
+
+Or if you are using a different branch name in the remote branch. For example, naming the remote branch as `awesomebranch`.
+``` shell
+git push origin serverfix:awesomebranch
+```
+
+### Fetching branch from remote and work with it
+When your collaborators fetch from the server, they will get a reference to the remote server `serverfix` under the remote branch `origin/server`. By default, they will not have the local `serverfix` branch.
+``` shell
+$ git fetch origin
+remote: Counting objects: 7, done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 0), reused 3 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From https://github.com/schacon/simplegit
+ * [new branch]      serverfix    -> origin/serverfix
+```
+
+To get a local `serverfix` branch, they can run
+``` shell
+$ git checkout -b serverfix origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+```
+
+If they want a different local branch name, they can set a different branch name.
+``` shell
+$ git checkout -b sf origin/serverfix
+Branch sf set up to track remote branch serverfix from origin.
+Switched to a new branch 'sf'
+```
+
+They can also use the `--track` shorthand which will set the local branch name the same as the remote branch name
+``` shell
+$ git checkout --track origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+```
+
+There is an even simple shortcut, if the branch name either doesn't exist locally or exactly matches a name on only one remote.
+``` shell
+$ git checkout serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+Switched to a new branch 'serverfix'
+```
+
+If the collaborators already have a local branch and want to set it to the remote branch, or want to change the upstream branch. Use `-u` or `--set-upstream-to` option to `git branch` to explicitly set it.
+``` shell
+$ git branch -u origin/serverfix
+Branch serverfix set up to track remote branch serverfix from origin.
+```
+
+After a tracking branch is set up, it can be refer to as `@{u}` or `@{upstream}`. For example, `git merge origin/master` can be written as `git merge @{u}`. It will show if the local branch is ahead, behind or both.
+
+To see the local branch and their tracking branch, you can use the `-vv` option to `git branch`.
+``` shell
+$ git branch -vv
+  iss53     7e424c3 [origin/iss53: ahead 2] Add forgotten brackets
+  master    1ae2a45 [origin/master] Deploy index fix
+* serverfix f8674d9 [teamone/server-fix-good: ahead 3, behind 1] This should do it
+  testing   5ea463a Try something new
+```
+
+Do note that the local tracking branch show the commit since the last time you fetched from the remote server. Remember to `git fetch` if you need the up-to-date commit.
+
+### `git pull`
+There is a command called `git pull` which is essentially a `git fetch` immediately followed by a `git merge` in most cases.
+
+Generally, it is better to simply use `git fetch` and `git merge` commands explicitly as the magic of `git pull` can be confusing.
+
+### Delete a remote branch
+``` shell
+$ git push origin --delete serverfix
+To https://github.com/schacon/simplegit
+ - [deleted]         serverfix
+```
+The Git server will generally keep the data there for a while until a garbage collection runs.
+
+## Rebasing
+In Git, there are 2 ways to integrate changes from one branch into another, the `merge` and the `rebase`.
+
+When there is a diverged work
+![](https://git-scm.com/book/en/v2/images/basic-rebase-1.png)
+
+Doing a merge will result as follows
+![](https://git-scm.com/book/en/v2/images/basic-rebase-2.png)
+
+If you do a rebase, it will take the change from `C4` and reapply on top of `C3`.
+``` shell
+$ git checkout experiment
+$ git rebase master
+First, rewinding head to replay your work on top of it...
+Applying: added staged command
+```
+![](https://git-scm.com/book/en/v2/images/basic-rebase-3.png)
+
+In the background, Git goes to the common ancestor of the two branches (the one you’re on and the one you’re rebasing onto), getting the diff introduced by each commit of the branch you’re on, saving those diffs to temporary files, resetting the current branch to the same commit as the branch you are rebasing onto, and finally applying each change in turn.
+
+After that, you can go back to the master to do a fast-forward merge.
+``` shell
+$ git checkout master
+$ git merge experiment
+```
+![](https://git-scm.com/book/en/v2/images/basic-rebase-4.png)
+
+Rebase helps to make the commit history clean, as it looks like a linear history now. 
+
+### More complicated rebase
+Let say your commit history looks as follows
+![](https://git-scm.com/book/en/v2/images/interesting-rebase-1.png)
+
+You decided to merge the `client` branch changes into the main branch for release, but keep the `server` branch changes. `master` branch is not the direct parent branch of `client` branch. Hence, you can use `--onto` to change the parents. `git rebase --onto <newparent> <oldparent> <branch>`.
+``` shell
+git rebase --onto master server client
+```
+![](https://git-scm.com/book/en/v2/images/interesting-rebase-2.png)
+
+Now, you can fast-forward your `master` branch.
+``` shell
+$ git checkout master
+$ git merge client
+```
+![](https://git-scm.com/book/en/v2/images/interesting-rebase-3.png)
+
+You can then rebase the `server` branch into `master` branch and do a fast forward merge.
+``` shell
+git rebase master server
+```
+![](https://git-scm.com/book/en/v2/images/interesting-rebase-4.png)
+
+``` shell
+$ git checkout master
+$ git merge server
+```
+Delete the branches
+``` shell
+$ git branch -d client
+$ git branch -d server
+```
+![](https://git-scm.com/book/en/v2/images/interesting-rebase-5.png)
+
+### When not to rebase
+**Do not rebase commits that exist outside your repository and that people may have based work on.**
+
+When you rebase stuff, you’re abandoning existing commits and creating new ones that are similar but different. It will cause trouble to others who based their work on the existing commits.
+
+Although it is not advisable to do it, Git have some magic that can help. Git calculates a checksum that is based just on the patch introduced with the commit. This is called a "patch-id". Therefore, it can often successfully figure out what is unqiuely yours and complete the rebase.
+
+### Rebase when doing `git pull`
+To apply `git rebase` instead of `git merge` when running `git pull`. Run`git pull --rebase`, or use `git fetch` followed by `git rebase`.
+
+For `git pull` to use rebase by default, you can set the pull.rebase config value as true `git config --global pull.rebase true`.
+
+### Commit History
+There are different views on commit history.
+- Commit history is a record of **what actually happened**.
+- Commit history is the **story of how your project was made**.
+
+It is up to the team and project to decide how they want to design the commit message.
+
+To get the best of both worlds, you should rebase local changes before pushing to clean up your work, but never rebase anything that you've push somewhere.
+
+
+# Git on the Servers
+
+
+# Distributed Git
+The distributed nature of Git allows far more flexible in how developers collaborate on projects. In Git, every developer is potentially a node and a hub, contributing code to other repositories and maintain a public repository which others can base on.
+
+## Workflow Type
+### Centralized Workflow
+In centralized workflow, one central hub, or *repository* can accept code, and everyone synchronize with the centralized location.
+![](https://git-scm.com/book/en/v2/images/centralized_workflow.png)
+
+If two developers clone from the hub and make changes. The first developer can push their change back up with no problems. The second developer must merge the change by the first developer before pushing changes up, so as to not overwrite the first developer's changes.
+
+### Integration-Manager Workflow
+In integration-manager workflow, everyone create their own public clone of the project and push changes to it. Each developer has write access to their own public repository and read access to everyone else's. There is usually a canonical repository that represent the official project. 
+
+You can send a request to the maintainer to pull in your changes. The maintainer can then add your repository as remote, test and merge your commit, and push back to the canonical repisitory.
+
+The process works as follows.
+1. The project maintainer pushes to their public repository.
+2. A contributor clones that repository and makes changes.
+3. The contributor pushes to their own public copy.
+4. The contributor sends the maintainer an email asking them to pull changes.
+5. The maintainer adds the contributor’s repository as a remote and merges locally.
+6. The maintainer pushes merged changes to the main repository.
+
+![](https://git-scm.com/book/en/v2/images/integration-manager.png)
+
+The advantage of this method is that each party can work at their own pace, without waiting for the project to incorporate their changes.
+
+### Dictator and Lieutenants Workflow
+This is a variant of a multiple repository workflow. It is generally used by huge projects with hundreds of developers (example: Linux kernel). 
+- Various integration managers (called *lieutenants*) are in charge of certain parts of the repository
+- All the lieutenants have one integration manager (called *benevolent director*)
+- Benevolent director pushes from their directory to a *reference repository* which all the collaborators pull from
+
+The process works as follows.
+1. Regular developers work on their topic branch and rebase their work on top of master. The master branch is that of the reference repository to which the dictator pushes.
+2. Lieutenants merge the developers' topic branches into their master branch.
+3. The dictator merges the lieutenants' master branches into the dictator’s master branch.
+4. Finally, the dictator pushes that master branch to the reference repository so the other developers can rebase on it.
+
+![](https://git-scm.com/book/en/v2/images/benevolent-dictator.png)
+
+## Contributing to a Project
+
+
+## Maintaining a Project
+
+
+# Github
+
+
+
