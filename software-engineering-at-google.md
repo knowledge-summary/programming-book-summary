@@ -133,3 +133,107 @@ Ratings, although an important way to measure performance during a specific peri
 3. Design for the user who will have the most difficulty using your product.
 4. Don’t assume equity; measure equity throughout your systems.
 5. Change is possible.
+
+
+# Chapter 5: How to Lead a Team
+A piece of software is just like that boat: if no one pilots it, you’re left with a group of engineers burning up valuable time, just sitting around waiting for something to happen (or worse, still writing code that you don’t need).
+
+Two leadership roles in Google
+- Manager - leader of people
+- Tech Lead - leads technogy efforts
+
+Can be the same person - Tech Lead Manager (TLM)
+
+The people skills required to succeed in each role is wildly different.
+
+Engineering Manager
+- In Google, they are required to have engineering background
+- Responsible for performance, productivity, and happiness of every person on the team
+
+Tech Lead (TL)
+- Responsible for the technical aspect of the product, including technology decisions and choices, architecture, priorities, velocity and general project management
+- Work with engineering manager to ensure that the team is adequately stuffed for their product and that engineer are set to work on tasks that best match their skill sets and skill levels
+
+Tech Lead Manager (TLM)
+- A single person who can handle both the people and technical needs of their team (more often taken by an individual contributor)
+- Tricky role and require balance individual work, delegation and people management
+- Mentoring and assistance from more experienced TLMs
+
+
+Influence without Authority - Get people outside of your organization—or heck, even outside of your product area sometimes—to do something that you think needs to be done.
+
+Reasons people avoid management role
+- Spend much less time writing code
+- Achievement can be less tangible/visible
+- Peter Principle - In a hierarchy, every employee tends to rise to his level of incompetence
+
+Greats reasons to consider becoming a TL/manager
+- A way to scale yourself
+- You might just be really good at it
+
+> "Above all, resists the urge to manage." - Steve Vinter, an engineering director from Google
+
+Servant leadership - the most important thing you can do as a leader is to serve your team (The cure for the "management" disease)
+- Remove bureaucratic obstacles that a team member can't remove by themselves
+- Helping the team achieve consensus
+- Buying dinner for the team when they are working late at the office
+
+If a manager makes it obvious that they trusts the employee, the employee feel the positive pressure to live up to that trust. A good manager forges the way for a team, looking out for their safety and well-being, all while making sure their needs are meet.
+
+> Traditional managers worry about how to get things done, whereas great managers worry about what things get done (and trust their team to figure out how to do it).
+
+- Don't babysit
+- Building psychological safety for risk taking
+    > If you try to achieve an impossible goal, there’s a good chance you’ll fail, but if you fail trying to achieve the impossible, you’ll most likely accomplish far more than you would have accomplished had you merely attempted something you knew you could complete
+
+
+Antipatterns/Characteristics of bad managements include
+| Antipatterns | Description | What should be done |
+| --- | --- | --- |
+| Hire pushovers | Hire people you can push around, cement your position but mean more works for you to guide | Strive to hire people who are smarter than you and can replace you. They will consistently impress you and make great things happen. |
+| Ignore low performers | Most difficult cases to handle are when someone just isn't capable of doing their job no matter how long or hard they work. It will drag the high performer and reduce team morale | Put yourself in the position of helping them up or out. Oftentimes, they merely need some encouragement or direction to slip into a more productivity. It almost always requires temporary micromanagement, but still a whole lot of humility, respect, and trust—particularly respect. |
+| Ignoring human issues | There are two major areas of focus for the team: the social and the technical | Being more empathy and don't be a jerk | 
+| Be everyone's friend  | Don’t confuse friendship with leading with a soft touch: when you hold power over someone’s career, they might feel pressure to artificially reciprocate gestures of friendship. If the friend who is being managed is not self-managing and is not a hard worker, it can be stressful for everyone. | You can be a tough leader without tossing your existing friendships to the wind. Having lunch with your team can be an effective way to stay socially connected to them without making them uncomfortable |
+| Compromise the hiring bar | The cost of finding the appropriate person pales when compare with the cost to deal with bad hire. Steve Jobs once said: "A people hire other A people; B people hire C people." | Ensure the candidates meet the hiring bar |
+| Treat your team like children | People tend to act the way you treat them, so if you treat them like children or prisoners, don’t be surprised when that’s how they behave. You can manifest this behavior by micromanaging them or simply by being disrespectful of their abilities and giving them no opportunity to be responsible for their work. | If you hire people worthy of trust and show these people you trust them, they’ll usually rise to the occasion. |
+
+Positive patterns
+- Lose the ego 
+  - There is a fine line between being humble and letting others take advantage of you. You can still have self-confidence and opinions without being an egomaniac.
+  - Trust and avoid micromanage
+  - Encourage inquiry and constructive criticism
+  - Apologize when you make a mistake
+- Be a zen master
+  - Be less vocally skeptical while still letting your team know you're aware of the intricacies and obstacles involved in the work
+  - Mediating your reactions and maintaining your calm
+  - Your team will consciously and subconsciously look to you for clues on how to react
+  - Zen management trick: asking questions. Help the person to solve the problem on their own by trying to refine and explore the problem.
+- Be a catalyst
+  - Build consensus, drive the process from start to finish, give a gentle push to the right direction
+- Remove roadblocks
+  - Jump in to help the team remove technical or organizational roadblocks
+  - In many cases, knowing the right person is more valuable than knowing the right answer
+- Be a teacher and a mentor
+  - Teaching people and giving them a chance to learn on their own can be incredibly difficult at first, but it’s a vital component of effective leadership
+  - This is especially important for new hires who, in addition to learning your team’s technology and codebase, are learning your team’s culture and the appropriate level of responsibility to assume.
+  - Three things needed
+    - Experience with your team’s processes and systems
+    - The ability to explain things to someone else
+    - The ability to gauge how much help your mentee needs
+- Set clear goals
+  - If you’re going to have clear goals, you need to set clear priorities and help your team decide how it should make trade-offs when the time comes.
+  - Create a concise mission statement for the team, step back and give it more autonomy, periodically checking in to make sure everyone is still on the right track.
+- Be honest
+  - Sometimes you can't tell your team something, or need to tell everyone something they don't want to hear, or simply don't know
+  - Use "compliment sandwich" to soften the blow when giving criticise
+  - 
+
+
+
+
+
+
+
+
+
+
