@@ -225,15 +225,180 @@ Positive patterns
   - Create a concise mission statement for the team, step back and give it more autonomy, periodically checking in to make sure everyone is still on the right track.
 - Be honest
   - Sometimes you can't tell your team something, or need to tell everyone something they don't want to hear, or simply don't know
-  - Use "compliment sandwich" to soften the blow when giving criticise
-  - 
+  - Using "compliment sandwich" to soften the blow when giving criticise might make people not hearing the critical message
+  - Instead, be kind and empathetic when delivering constructive criticism. Give clear feedback and direction.
+- Track happiness
+  - Example
+    - Makes a spreadsheet of all the grungu, thankless tasks that need to be done and split them evenly across the team
+    - Watch the hour worked, uses comp time and fun team outings to avoid burnout and exhaustion
+    - One-on-one session to deal with technical issues, make sure that everything needed are prepared, talks about how they're enjoying the work
+  - Ask "What do you need?" to make sure that each team member has what they need to be productive and happy.
+
+## Where you see your career in five years
+Usually people won't say much about this.
+
+There are usually a few things that everyone would like to do in the next five years
+- Be promoted
+- Learn something new
+- Launch something important
+- Work with smart people
+
+Effective leader should be thinking how they can make these happen. Take these implicit goals and make them explicit so that when you're giving career advice, you have a real set of metrics with which to evaluate situations and opportunities.
+
+## Other tips and tricks
+- Delegate, but get your hands dirty
+  - Gain respect by taking on a grungy task that no one else wants to do.
+- Seek to replace yourself
+- Know when to make waves
+- Shield your team from chaos
+- Give your team air cover
+- Let your team know when they're doing well
+- It's easy to say "yes" to something that's easy to undo
+
+People are like plants, they need varying amount of motivation and direction. Motivate the one in the rut, provide stronger direction to those who are distracted or uncertain of what to do.
+
+There are two types of motivation: extrinsic (such as monetary compensation) and intrinsic, which comes from within.
+
+To increase the intrinsic motivation, give people three things: autonomy, mastery and purpose.
 
 
+# Chapter 6: Leading at Scale
+Your effectiveness depends more than ever on your general technical intuition and ability to galvanize engineer to move in a good direction.
+
+"The Three Always of Leaderships": **Always be deciding, always be leaving, always be scaling**
+
+## Always be deciding
+Three steps:
+1. Identify the blinder (discover bizarre coping mechanisms or rationalizations that evolved to justify the status quo)
+2. Identify the trade-offs (leave a trail of self-sufficient success)
+3. Decide and iterate on a solution
+
+Analysis paralysis: fall into trap of finding the perfect solution.
+
+Instead, make your teams comfortable with iteration.
+
+## Always be leaving
+
+Being a successful leader means building an organization that is able to solve the difficult problem by itself.
+
+Silicon Valley has well-known mantras about "falling fast and iterating". It doesn't just apply to engineering design, but to human learning as well.
+
+What can I do that nobody else on my team can do?
+- Protect your team from organizational politics
+- Give encouragement
+- Make sure everyone treating others well
+- Manage up - make sure your management chain understand what your group is doing
+- Define a high-level strategy
+
+What good management is about: 95% observation and listening, 5% making critical adjustments in just the right place
+
+Anchoring team's identity to a general problem, instead of a specific product.
+
+## Always be scaling
+The cycle of success
+- Analysis
+- Struggle 
+- Traction
+- Reward
+
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781492082781/files/assets/seag_0602.png)
+
+As you moved into leadership, your job became less proactive and more reactive.
+
+Key techniques
+- Delegate
+- Schedule dedicated time
+- Find a tracking system that works
+
+Important vs urgent
+
+Dropping ball
+
+Declutter abstract clutter. 
+
+Think of your physical possessions as living in three piles
+- About 20% of your things are useless
+- About 60% are somewhat interesting and vary in importance
+- About 20% are exceedingly important
+
+Instead of identifying the bottom 20%, you should instead identifying the top 20%. First, even if you don't delegate the middle 60%, your subleaders often notice and pick them up automatically. If that middle bucket is truly critical, it will end up in the 20% bucket.
+
+Protecing your energy
+- As you grow older, your overall stamina build up.
+- Leader gradually learn to manage their energy more intelligently
+- Take real vacation
+- Make it trivial to disconnect (disable/remove work related tools)
+- Take real weekends
+- Take breaks during the day
+- Give yourself permission to take a mental health day
 
 
+# Chapter 7: Measuring Engineering Productivity
+To increase the scope of business, you can
+- add more people
+- make each individual more productive
 
+Adding more people will be necessary to increase the scope of your business, but the communication overhead costs will not scale linearly as you add additional personnel.
 
+Google has a team of researchers dedicated to understanding engineering productivity.
+- Personal motivation
+- Incentive structures
+- Strategies for managing complex tasks
 
+Before measuring, we need to know if a metric is even worth measuring. In Google, we comes out with a series of questions to help teams determine.
+- What results are you expecting, and why?
+- If the data supports your expected result, what action will be taken?
+- If we get a negative result, will appropriate action be taken?
+- Who is going to decide on take action on the result, and when would they do it?
 
+Some good reasons to not continue with the measurement
+- You can't afford to change the process/tools right now
+- Any results will soon be invalidated by other factors
+- The result will be used only as vanity metrics to support something you were going to do anyway
+- The only metrics available are not precise enough to measure the problem and can be confounded by other factors
 
+After we decide to measure a software process, we need to determine what metrics to use. At Google, we use Goals/Signals/Metrics (GSM) framework to guide metric creation.
+- Goal: desired end result
+- Signal: how you know that you've achieved the end result
+- Metric: Proxy for signal that can be measure
 
+Using GSM framework prevents the streetlight effect, prevent metric creep and metric bias, show us where we have measurement coverage.
+
+Streetlight effect: if you look only where you can see, you might not be looking in the right place.
+
+The Google research team divides productivity to five components with mnemonic "QUANTS"
+- Quality of the code
+- Attention from engineers
+- Intellectual complexity
+- Tempo and velocity
+- Satisfactory
+
+# Chapter 8: Style Guides and Rules
+To manage codebase, Google maintain a set of style guide that define the rules.
+
+As an organization grows, the established rules and guidelines shape the common vocabulary of coding. A common vocabulary allows engineers to concentrate on what their code needs to say rather than how they’re saying it.
+
+Overarching principles that guide the development of style guide
+- Pull their weight
+- Optimize for reader (aim for local reasoning)
+- Be consistent
+- Avoid error-prone and surprise constructs
+- Concede to practicalities when necessary
+
+Advantage of consistency
+- Help readers focus on what's getting done rather than how it is presented.
+- Enable scaling 
+- Ensure resilience to time
+
+Be consistent starts locally.
+
+What goes into style rules:
+- Rules to avoid danger (some language features have nuanced usage patterns that might not be intuitive or easy to apply properly)
+- Rules to enforce best practices (such as comment, project structure, naming)
+- Rules to enforce consistency (such as naming convention, indentation, import ordering)
+
+In addition to rules, we curate programming guidance in various forms. Guidance represents the collected wisdom of our engineering experience, documenting the best practices that we’ve extracted from the lessons learned along the way.
+
+Automated enforcement of rules if possible.
+- Some technical rules explitcitly call for human judgement
+- Other rules are social rather than technical (such as what is considered as small commit)
