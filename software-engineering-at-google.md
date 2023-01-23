@@ -13,6 +13,8 @@ Factors that affect the flexibility of a codebase
 - Familiarity
 - Policy
 
+Shifting left - Shifting problem detection to the “left” earlier on this timeline makes it cheaper to fix than waiting longer.
+
 Costs
 - Financial costs (money)
 - Resource costs (CPU)
@@ -374,7 +376,7 @@ The Google research team divides productivity to five components with mnemonic "
 - Satisfactory
 
 # Chapter 8: Style Guides and Rules
-To manage codebase, Google maintain a set of style guide that define the rules.
+To manage codebase, Google maintain a set of style guide that define the rules. Each language has a style arbiter to manage.
 
 As an organization grows, the established rules and guidelines shape the common vocabulary of coding. A common vocabulary allows engineers to concentrate on what their code needs to say rather than how they’re saying it.
 
@@ -399,6 +401,239 @@ What goes into style rules:
 
 In addition to rules, we curate programming guidance in various forms. Guidance represents the collected wisdom of our engineering experience, documenting the best practices that we’ve extracted from the lessons learned along the way.
 
-Automated enforcement of rules if possible.
+Automated enforcement of rules if possible. However,
 - Some technical rules explitcitly call for human judgement
 - Other rules are social rather than technical (such as what is considered as small commit)
+# Chapter 9: Code Review
+Code review is the process in which code is reviewed by someone other than the author, often before the introduction of that code into a codebase, the stage is called *precomit review*. The implementation vary across the software industry.
+
+Google uses a custom tool called Critique to do code review. 
+
+The end goal of a code review is to get another engineer to consent to the change, which we denote by tagging the change as "look good to me" (LGTM).
+
+Typical code review workflow
+1. Write changes, submit to code review tool.
+2. Self review, afterwards mail the change and notify the reviewers.
+3. Reviewers post comments.
+4. Author modifies the change, upload and replies back to the reviewers. Step 3 and 4 may be repeated multiple times.
+5. Reviewers agree and accept by marking "LGTM".
+6. Author commit the change.
+
+Code is a liability. It is a maintenance task for someone somewhere down the line. Like the fuel of airplane, have weight, and necessary for airplane to fly.
+
+There are three aspects of reviews that require approval (can be by same person)
+- A correctness and comprehension check that the code does what the author claims it does
+- Approval from code owner of a particular codebase
+- Approval from someone with language "readability"
+
+Most code reviews that require more than one approval usually go through a two-step process: gaining an LGTM from a peer engineer, and then seeking approval from appropriate code owner/readability reviewer(s). This allows the two roles to focus on different aspects of the code review.
+
+Splitting reviews to different components help with scaling.
+
+Code review is a mandate, one of the few blanket process that each software engineer in Google need to participate.
+
+Benefits of well-designed code review process and a culture of taking code review seriously
+- Check code correctness
+- Ensure the code change is comprehensible to other engineers
+- Ensure code consistency across the codebase
+- Psychologically promote team ownership
+- Enables knowledge sharing
+- Provides a historical record of the code review itself
+
+Code review processes that are heavyweight, or that don’t scale properly, become unsustainable. Authors are given deference to their particular approach, reviewer can propose alternatives only if they improve comprehension or functionality.
+
+In Google, we expect feedback from a code review within 24 (working) hours.
+
+Core reviews best practices
+- Be polite and professional
+- Write small changes (limited to about 200 lines of code)
+- Writ good change descriptuons
+- Keep reviewers to a minimum
+- Automate when possible
+
+Different types of code reviews
+- Greenfield reviews and new feature development
+- Behavioural changes, improvements and optimizations
+- Bug fixes and rollbacks
+- Refactorings and large-scale changes
+
+# Chapter 10: Documentation
+The key to making it easier for engineer to write quality documentation is to introduce processes and tools that scale with the organization and that tie into their existing workflow.
+
+At Google, our most successful efforts have been when documentation is treated like code and incorporated into the traditional engineering workflow, making it easier for engineers to write and maintain simple documents.
+
+Main pain point: the benefit of documentation isn't immediate
+
+Documentation helps to answer
+- Design decisions
+- Implementation reasoning
+
+Benefits of documentation
+- Help formulate the API and reevaluate design decisions
+- Road map for maintenance and a historical record
+- Makes your code look more professional and drive traffic
+- Prompt fewer questions from other users
+
+Document is just a different language, called English. Documents should have owner.
+
+There is also canonical documentation, acting as the source of truth. (eg: "go/links" at Google)
+
+Your documentation should
+- Have internal policies or riles to be followed
+- Be place under source control
+- Have clear ownership responsible for maintaining the dics
+- Undergo reviews for changes (and change with the code it documents)
+- Have issues tracked, as bugs are tracked in code
+- Be periodically evaluated (tested, in some respect)
+- If possible, be measured for aspects such as accuracy, freshness, etc. (tools have still not caught up here)
+
+Google started with own internal wiki (GooWiki), all engineers shared the single documentation set and could update it if needed.
+
+Move important documentation under version control. Introduce markdown as a common documentation formatting language.
+
+Google introduced its own framework for embedding documnetation within code: g3doc.
+
+## Audience
+Identify the audiences of your documentation.
+
+Consideration 1:
+- Experience level
+- Domain knowledge
+- Purpose
+
+Consideration 2:
+How a user encounter a documentation
+- **Seekers** are engineers who know what they want and want to know if what they are looking at fits the bill (key: consistency)
+- **Stumblers** might not know exactly what they want (key: clarity)
+
+Consideration 3:
+- Customer (such as user of API)
+- Provider (such as member of proejct team)
+
+Keep your documentation short. Write descriptively enough to explain complex topics to people unfamiliar with the topic, but don’t lose or annoy experts. Can have separate documentation for different audiences.
+
+
+## Types of Documentation
+It is important to know the different types of documentation, and to not mix types. A document should have a singular purpose, and stick to it.
+
+Main types of documentation:
+- Reference documentation (anything that document the usage of code within the codebase)
+  - File comments
+  - Class comments
+  - Function comments (starts with declarative verb. A single sentence can be enough, Google didn't find it necessary to have boilerplate session like 'Returns', 'Throws')
+- Design documents (require approval before starting work on any major work, cover aspects such as security implications, internationalization, storage requirements, privacy concerns. Can be used to measure whether a project achieve its goals)
+- Tutorials (each step should be an action that the user need to take)
+- Conceptual documentation (mean to augement instead of replace reference documentation)
+- Landing pages (serve as a traffic cop)
+
+## Review a Documentation
+A technical document benefits from three different types of reviews
+- A technical review, for accuracy
+- An audience review, for clarity
+- A writing review, for consistency
+
+## Documentation Philosophy 
+- Answer who, what, when, where, why
+- Having more sessions help breaking down the flow into logical pieces
+- Redudancy can be useful in documentation
+
+The parameters of good documentation: completeness, accuracy and clarity.
+
+A "good document" is the document that is doing its intended job.
+
+In Google, we attach "freshness date" to documentation. Email will be sent when the document hasn't been touched in, for example, three months.
+
+
+# Chapter 11: Testing Overview
+Why do you need testing?
+- Catching bugs
+- Support the ability to change
+- Improve the design of the system
+
+Test suite is a collection of simple tests. As test suite grows, it will begin to face challenges like instability and slowness. A bad test suite can be worse than no test suite at all.
+
+Automating test consists of three activities
+- Writing tests
+- Running tests
+- Reacting to test failures
+
+Healthy automated testing culture
+- Encourage everyone to share the work of writing tests
+- Ensure that tests are run regularly
+- Fixing broken tests quickly to maintain high confidence
+
+Benefits of testing
+- Less debugging
+- Increased confidence in changes (encourage refactoring)
+- Improved documentation
+- Simpler reviews
+- Thoughtful design
+- Fast, high quality releases
+
+Most important qualities we want from our test suite are speed and determinism.
+
+Test size
+- Small test run in a single process
+  - Run on a single thread
+  - Can't run a server or database
+  - Not allowed to sleep, perform I/O operations, make any other blocking calls
+  - Not allowed to access network or disk
+- Medium test run on a single machine
+  - Not allowed to make networks call to any system other than localhost
+- Large test run whatever they want
+
+> Software provides many sources of nondeterminism: clock time, thread scheduling, network latency, and many more. It can also tied to low level concerns such as hardware interrupts or browser rendering engines. A good automated test infrastructure should help engineers identify and mitigate any nondeterministic behavior.
+
+All test should strive to be hermatic: a test should contain all of the information necessary to set up, execute, and tear down its own environment. There should assume as little as possible about the outside environment.
+
+A test should contain only the information required to get expected behaviour. Keep test clear and simple
+
+Test scope
+- **Narrow-scoped tests (unit tests)** - test individual class or method
+- **Medium-scoped tests (integration tests)** - verify interactions between a small number of components
+- **Large-scoped test (functional tests, end-to-end tests, or system tests)** - validate the interaction of several distinct parts of the system, or emergent behaviors that aren’t expressed in a single class or method.
+
+Google aims to have a mix of around 80% narrow-scoped, 15% medium scoped and 5% end-to-end tests. The mix of tests is determined by two primary goals: engineering productivity and product confidence.
+
+Antipatterns
+- "Ice cream cone"
+- "Hourglass"
+
+The Beyoncé Rules - "If you liked it, then you shoulda put a test on it."
+
+What actually need to be tested? Straightforward answer: test everything that you don’t want to break.
+
+A usual suspects include 
+- performance
+- behavioural correctness
+- accessibility
+- security
+- failure handling (shouldn't be ignored)
+
+**Code coverage** is a measure of which lines of feature code are exercised by which tests. If you have 100 lines of code and your tests execute 90 of them, you have 90% code coverage. It is a proxy to answer the question "do we have enough tests?" and should be used mindfully.
+
+Most of Google’s code is kept in a single, monolithic repository. We have more than two billion lines of code in the repository today. Google’s codebase experiences close to 25 million lines of change every week. Roughly half of them are made by the tens of thousands of engineers working in our monorepo, and the other half by our automated systems, in the form of configuration updates or large-scale changes.
+
+Another thing that makes Google a little different is that almost no teams use repository branching. All changes are committed to the repository head and are immediately visible for everyone to see. Furthermore, all software builds are performed using the last committed change that our testing infrastructure has validated. One of the key components of our CI system is our Test Automated Platform (TAP).
+
+Friction
+- Brittle tests (Overspecify expected outcome, rely on extensive and complicated boilerplate)
+- Slow tests
+- Not deterministic
+
+Google volunteer - Testing Grouplet
+
+Three key initiatives that help usher automated testing:
+- Orientation Classes (to introduce testing to new hires)
+- Test Certified Program (a five-level program with concrete action to improve code hygiene on the team)
+- Testing on the Toilet (TotT)
+
+Today, as a the replacement for Test Certified, one of our engineering productivity teams recently launched a tool called Project Health (pH).
+
+Testing has become an integral part of Google's engineering culture.
+
+Limit of automated testing
+- Test that need human judgement (quality of search result, audio)
+- Complex security vulnerabilities
+  
+**Exploratory testing** - a fundamentally creative endeavor in which someone treats the application under test as a puzzle to be broken, maybe by executing an unexpected set of steps or by inserting unexpected data
