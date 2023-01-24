@@ -637,3 +637,64 @@ Limit of automated testing
 - Complex security vulnerabilities
   
 **Exploratory testing** - a fundamentally creative endeavor in which someone treats the application under test as a puzzle to be broken, maybe by executing an unexpected set of steps or by inserting unexpected data
+
+
+# Chapter 12: Unit Testing
+Brittle test wastes valuable time.
+
+The ideal test is unchanging.
+
+Types of changes to codebase
+-  Pure refactorings
+-  New features
+-  Bug fixes
+-  Behaviour changes
+
+Ways to prevent brittle test:
+- Only behaviour changes are expected to have to make updates to the system's existing test.
+- Test via public APIs (write tests that invoke the system being tested in the same way its users would. If such a test breaks, it implies that an existing user of the system will also be broken)
+- Test state, not interaction (state: looks after invoking code, interaction: expected sequence of actions)
+
+If a method or class exists only to support one or two other classes (i.e., it is a “helper class”), it probably shouldn’t be considered its own unit
+
+Ways to write clean tests
+- Make your tests complete and concise (it is okay to violate DRY principle if it leads to clearer tests)
+- Test behaviours, not method (a single method often does a few things under the hood, writing test for method can make test unclear. Behaviors can often be expressed using the words "given," "when," and "then")
+  ``` c
+  @Test
+  public void transferFundsShouldMoveMoneyBetweenAccounts() {
+    // Given two accounts with initial balances of $150 and $20
+    Account account1 = newAccountWithBalance(usd(150));
+    Account account2 = newAccountWithBalance(usd(20));
+
+    // When transferring $100 from the first to the second account
+    bank.transferFunds(account1, account2, usd(100));
+
+    // Then the new account balances should reflect the transfer
+    assertThat(account1.getBalance()).isEqualTo(usd(50));
+    assertThat(account2.getBalance()).isEqualTo(usd(120));
+  }
+  ```
+- Name tests after the behavior being tested
+- Don't put logic in tests
+- Write clear failure message  
+  ``` shell
+  // bad example
+  Test failed: account is closed
+  
+  // good example
+  Expected an account in state CLOSED, but got account:
+      <{name: "my-account", state: "OPEN"}
+  ```
+
+Truth (assertion library developed by Google)
+
+Test should be **DAMP** (Descriptive and Meaningful Phrases)
+
+**Shared values**: Many tests are structured by defining a set of shared values to be used by tests and then by defining the tests that cover various cases for how these values interact. A better way to accomplish this goal is to construct data using helper methods that require the test author to specify only values they care about, and setting reasonable defaults for all other values. 
+
+**Shared set-up**: The best use case for setup methods is to construct the object under tests and its collaborators. One risk in using setup methods is that they can lead to unclear tests if those tests begin to depend on the particular values used in setup. The test should state those values directly.
+
+**Shared helper and validation**: The best validation helper methods assert a single conceptual fact about their inputs, in contrast to general-purpose validation methods that cover a range of conditions.
+
+**Defining Test Infrastructure**: Sometimes, it can also be valuable to share code across multiple test suites. (eg: JUnit for Java)
