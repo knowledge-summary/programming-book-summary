@@ -698,3 +698,153 @@ Test should be **DAMP** (Descriptive and Meaningful Phrases)
 **Shared helper and validation**: The best validation helper methods assert a single conceptual fact about their inputs, in contrast to general-purpose validation methods that cover a range of conditions.
 
 **Defining Test Infrastructure**: Sometimes, it can also be valuable to share code across multiple test suites. (eg: JUnit for Java)
+
+
+# Chapter 13: Test Doubles
+
+
+
+
+
+# Chapter 14: Larger Testing
+
+
+
+
+
+# Chapter 15: Deprecation
+
+
+
+
+
+# Chapter 16: Version Control and Branch Management
+A VCS is a system that tracks revisions (versions) of files over time. A VCS maintains some metadata about the set of files being managed, and collectively a copy of the files and metadata is called a repository.
+
+Google used a centralized version control systems called Piper and a monorepo.
+
+DevOps Research Association (DORA)
+
+The problem that using a development branch are attempting to solve (instability of the product) is a legitimate one—but one that we have found to be solved far better with more extensive use of tests, Continuous Integration (CI), and quality enforcement practices like thorough code review.
+
+All of that effort in merging and retesting is pure overhead. The alternative requires a different paradigm: trunk-based development, rely heavily on testing and CI, keep the build green, and disable incomplete/untested features at runtime.
+
+It may be sensible to create a release branch that represents the exact code that went into the release build for your product. If any critical flaws are discovered between the actual release of that product into the wild and the next release cycle, fixes can be cherry-picked (a minimal, targeted merge) from trunk to your release branch. A dev branch is expected to merge back to trunk, and could even be further branched by another team. A release branch is expected to be abandoned eventually.
+
+Google have a OWNERS file that lists the username of engineers allowing to commits within the subtree of the repo.
+
+Developers must never have a choice of “What version of this component should I depend upon?”
+
+Dependency across time in any form is far more costly and complicated than code that is time invariant. Internally, Google production services make relatively few promises of that form. We also benefit greatly from a cap on potential version skew imposed by our “build horizon”: every job in production needs to be rebuilt and redeployed every six months, maximum.
+
+Many Google teams use release branches, with limited cherry picks. If you’re going to put out a monthly release and continue working toward the next release, it’s perfectly reasonable to make a release branch.
+
+Software engineering tools including both VCS and build systems are increasingly providing mechanisms to smartly blend between fine-grained repositories and monorepos to provide an experience akin to the monorepo—an agreed-upon ordering of commits and understanding of the dependency graph. Git submodules, Bazel with external dependencies, and CMake subprojects all allow modern developers to synthesize something weakly approximating monorepo behavior without the costs and downsides of a monorepo.
+
+Fine-grained repositories in a federated/virtual-monorepo (VMR)–style repository can make it easier to isolate experimental or top-secret projects while still holding to One Version and allowing access to common utilities.
+
+To put it another way: if every project in your organization has the same secrecy, legal, privacy, and security requirements, a true monorepo is a fine way to go. Otherwise, aim for the functionality of a monorepo, but allow yourself the flexibility of implementing that experience in a different fashion. If you can manage with disjoint repositories and adhere to One Version or your workload is all disconnected enough to allow truly separate repositories, great. Otherwise, synthesizing something like a VMR in some fashion may represent the best of both worlds.
+
+Argument against monorepo
+- Technical limitations
+- it doesn’t match how development happens in the Open Source Software (OSS) world
+- as your organization scales up, it is less and less likely that every piece of code is subject to exactly the same legal, compliance, regulatory, secrecy, and privacy requirements
+
+Looking at the past few years of major improvements to Git, there’s clearly a lot of work being done to support larger repositories: shallow clones, sparse branches, better optimization, and more.
+
+
+
+# Chapter 17: Code Seaech
+
+
+
+
+
+# Chapter 18: Build Systems and Build Philosophy
+
+
+
+
+
+# Chapter 19: Critique: Google's Code Review Tool
+
+
+
+
+
+# Chapter 20: Static Analysis
+Static analysis refers to programs analyzing source code to find potential issues such as bugs, antipatterns, and other issues that can be diagnosed without executing the program.
+
+Codify best practices
+- Identify constant expressions that overflow
+- Tests that never run
+- Invalid format strings in logging statements that would crash when executed
+- Verifying that naming conventions are upheld
+- Flagging the use of deprecated APIs
+- Pointing out simpler but equivalent expressions that make code easier to read
+
+Make static analysis scalable and usable
+- Focus analyses on files affected by a pending code change
+- Anything that can be fixed automatically should be fixed automatically
+- Focus on smooth developer workflow integration
+
+Three keys lessons in making static analysis work
+- Focus on developer happiness (reduce effective false-positive rate)
+- Make static analysis a part of the core developer workflow
+- Empower users to contribute
+
+A static analysis tool can produce warnings that are technically correct but misinterpreted by users as false positives. We call the user-perceived false-positive rate the "**effective false positive**" rate.
+
+Tricorder: Google's Static Analysis Platform
+
+The four criteria for new Tricorder checks
+- Be understandable
+- Be actionable and easy to fix
+- Produce less than 10% effective false positive
+- Have the potential of significant impact on code quality
+
+There are many different types of static analysis tools integrated with Tricorder.
+- [Error Prone](http://errorprone.info/)
+- [clang-tidy](https://clang.llvm.org/extra/clang-tidy/)
+
+Tricorder also built integrated feedback channel such as button of "Not useful", "Please fix" to collect feedback. It also provides automated fixes.
+
+There are also additional optional analyzers (such as The Proto Best Practices Analyzer).
+
+The key insight to making this customization successful was to focus on project-level customization, not user-level customization.
+
+Presubmits checks include very simple customizable built-in checks on the contents or metadata of a change, such as ensuring that the commit message does not say “DO NOT SUBMIT” or that test files are always included with corresponding code files. 
+
+Integrate static analysis into compiler. We enforce these criteria
+- Actionable and easy to fix
+- Produce no effective false positives
+- Report issues affecting only correctness rather than style or best practices
+
+Integrate static analysis with Integrated Development Environment (IDE).
+
+
+# Chapter 21: Dependency Management
+
+
+
+
+
+# Chapter 22: Large-scale Change
+
+
+
+
+
+# Chapter 23: Continuous Integration
+
+
+
+
+
+# Chapter 24: Continuous Delivery
+
+
+
+
+
+# Chapter 25: Compute as a Service
