@@ -69,9 +69,9 @@ An environment in which people are afraid to take risks or make mistakes in fron
       Each island has its own ways of doing the same thing, and these might or might not conflict.
 - **Single point of failure (SPOF)**  
   A bottleneck that occurs when critical information is available from only a single person. This is related to bus factor.  <br><br>
-  SPOFs can arise out of good intentions: it can be easy to fall into a habit of “Let me take care of that for you.” But this approach optimizes for short-term efficiency (“It’s faster for me to do it”) at the cost of poor long-term scalability (the team never learns how to do whatever it is that needs to be done). This mindset also tends to lead to all-or-nothing expertise.
+  SPOFs can arise out of good intentions: it can be easy to fall into a habit of "Let me take care of that for you." But this approach optimizes for short-term efficiency ("It's faster for me to do it") at the cost of poor long-term scalability (the team never learns how to do whatever it is that needs to be done). This mindset also tends to lead to all-or-nothing expertise.
 - **All-or-nothing expertise**  
-  A group of people that is split between people who know “everything” and novices, with little middle ground. This problem often reinforces itself if experts always do everything themselves and don’t take the time to develop new experts through mentoring or documentation. In this scenario, knowledge and responsibilities continue to accumulate on those who already have expertise, and new team members or novices are left to fend for themselves and ramp up more slowly.
+  A group of people that is split between people who know "everything" and novices, with little middle ground. This problem often reinforces itself if experts always do everything themselves and don’t take the time to develop new experts through mentoring or documentation. In this scenario, knowledge and responsibilities continue to accumulate on those who already have expertise, and new team members or novices are left to fend for themselves and ramp up more slowly.
 - Parroting  
   Mimicry without understanding. This is typically characterized by mindlessly copying patterns or code without understanding their purpose, often under the assumption that said code is needed for unknown reasons.
 - Haunted graveyards
@@ -192,44 +192,44 @@ If a manager makes it obvious that they trusts the employee, the employee feel t
 Antipatterns/Characteristics of bad managements include
 | Antipatterns | Description | What should be done |
 | --- | --- | --- |
-| Hire pushovers | Hire people you can push around, cement your position but mean more works for you to guide | Strive to hire people who are smarter than you and can replace you. They will consistently impress you and make great things happen. |
-| Ignore low performers | Most difficult cases to handle are when someone just isn't capable of doing their job no matter how long or hard they work. It will drag the high performer and reduce team morale | Put yourself in the position of helping them up or out. Oftentimes, they merely need some encouragement or direction to slip into a more productivity. It almost always requires temporary micromanagement, but still a whole lot of humility, respect, and trust—particularly respect. |
-| Ignoring human issues | There are two major areas of focus for the team: the social and the technical | Being more empathy and don't be a jerk | 
-| Be everyone's friend  | Don’t confuse friendship with leading with a soft touch: when you hold power over someone’s career, they might feel pressure to artificially reciprocate gestures of friendship. If the friend who is being managed is not self-managing and is not a hard worker, it can be stressful for everyone. | You can be a tough leader without tossing your existing friendships to the wind. Having lunch with your team can be an effective way to stay socially connected to them without making them uncomfortable |
-| Compromise the hiring bar | The cost of finding the appropriate person pales when compare with the cost to deal with bad hire. Steve Jobs once said: "A people hire other A people; B people hire C people." | Ensure the candidates meet the hiring bar |
-| Treat your team like children | People tend to act the way you treat them, so if you treat them like children or prisoners, don’t be surprised when that’s how they behave. You can manifest this behavior by micromanaging them or simply by being disrespectful of their abilities and giving them no opportunity to be responsible for their work. | If you hire people worthy of trust and show these people you trust them, they’ll usually rise to the occasion. |
+| **Hire pushovers** | Hire people you can push around, cement your position but mean more works for you to guide | Strive to hire people who are smarter than you and can replace you. They will consistently impress you and make great things happen. |
+| **Ignore low performers** | Most difficult cases to handle are when someone just isn't capable of doing their job no matter how long or hard they work. It will drag the high performer and reduce team morale | Put yourself in the position of helping them up or out. Oftentimes, they merely need some encouragement or direction to slip into a more productivity. It almost always requires temporary micromanagement, but still a whole lot of humility, respect, and trust—particularly respect. |
+| **Ignoring human issues** | There are two major areas of focus for the team: the social and the technical | Being more empathy and don't be a jerk | 
+| **Be everyone's friend**  | Don’t confuse friendship with leading with a soft touch: when you hold power over someone’s career, they might feel pressure to artificially reciprocate gestures of friendship. If the friend who is being managed is not self-managing and is not a hard worker, it can be stressful for everyone. | You can be a tough leader without tossing your existing friendships to the wind. Having lunch with your team can be an effective way to stay socially connected to them without making them uncomfortable |
+| **Compromise the hiring bar** | The cost of finding the appropriate person pales when compare with the cost to deal with bad hire. Steve Jobs once said: "A people hire other A people; B people hire C people." | Ensure the candidates meet the hiring bar |
+| **Treat your team like children** | People tend to act the way you treat them, so if you treat them like children or prisoners, don’t be surprised when that’s how they behave. You can manifest this behavior by micromanaging them or simply by being disrespectful of their abilities and giving them no opportunity to be responsible for their work. | If you hire people worthy of trust and show these people you trust them, they’ll usually rise to the occasion. |
 
 Positive patterns
-- Lose the ego 
+- **Lose the ego** 
   - There is a fine line between being humble and letting others take advantage of you. You can still have self-confidence and opinions without being an egomaniac.
   - Trust and avoid micromanage
   - Encourage inquiry and constructive criticism
   - Apologize when you make a mistake
-- Be a zen master
+- **Be a zen master**
   - Be less vocally skeptical while still letting your team know you're aware of the intricacies and obstacles involved in the work
   - Mediating your reactions and maintaining your calm
   - Your team will consciously and subconsciously look to you for clues on how to react
   - Zen management trick: asking questions. Help the person to solve the problem on their own by trying to refine and explore the problem.
-- Be a catalyst
+- **Be a catalyst**
   - Build consensus, drive the process from start to finish, give a gentle push to the right direction
-- Remove roadblocks
+- **Remove roadblocks**
   - Jump in to help the team remove technical or organizational roadblocks
   - In many cases, knowing the right person is more valuable than knowing the right answer
-- Be a teacher and a mentor
+- **Be a teacher and a mentor**
   - Teaching people and giving them a chance to learn on their own can be incredibly difficult at first, but it’s a vital component of effective leadership
   - This is especially important for new hires who, in addition to learning your team’s technology and codebase, are learning your team’s culture and the appropriate level of responsibility to assume.
   - Three things needed
     - Experience with your team’s processes and systems
     - The ability to explain things to someone else
     - The ability to gauge how much help your mentee needs
-- Set clear goals
+- **Set clear goals**
   - If you’re going to have clear goals, you need to set clear priorities and help your team decide how it should make trade-offs when the time comes.
   - Create a concise mission statement for the team, step back and give it more autonomy, periodically checking in to make sure everyone is still on the right track.
-- Be honest
+- **Be honest**
   - Sometimes you can't tell your team something, or need to tell everyone something they don't want to hear, or simply don't know
   - Using "compliment sandwich" to soften the blow when giving criticise might make people not hearing the critical message
   - Instead, be kind and empathetic when delivering constructive criticism. Give clear feedback and direction.
-- Track happiness
+- **Track happiness**
   - Example
     - Makes a spreadsheet of all the grungu, thankless tasks that need to be done and split them evenly across the team
     - Watch the hour worked, uses comp time and fun team outings to avoid burnout and exhaustion
@@ -404,6 +404,8 @@ In addition to rules, we curate programming guidance in various forms. Guidance 
 Automated enforcement of rules if possible. However,
 - Some technical rules explitcitly call for human judgement
 - Other rules are social rather than technical (such as what is considered as small commit)
+
+
 # Chapter 9: Code Review
 Code review is the process in which code is reviewed by someone other than the author, often before the introduction of that code into a codebase, the stage is called *precomit review*. The implementation vary across the software industry.
 
@@ -521,9 +523,9 @@ Main types of documentation:
   - File comments
   - Class comments
   - Function comments (starts with declarative verb. A single sentence can be enough, Google didn't find it necessary to have boilerplate session like 'Returns', 'Throws')
-- Design documents (require approval before starting work on any major work, cover aspects such as security implications, internationalization, storage requirements, privacy concerns. Can be used to measure whether a project achieve its goals)
+- Design documents (require approval before starting work on any major work, cover aspects such as security implications, internationalization, storage requirements, privacy concerns. A good design documents cover goal, implementation strategy and key design decisions. Can be used to measure whether a project achieve its goals)
 - Tutorials (each step should be an action that the user need to take)
-- Conceptual documentation (mean to augement instead of replace reference documentation)
+- Conceptual documentation (mean to augment instead of replace reference documentation)
 - Landing pages (serve as a traffic cop)
 
 ## Review a Documentation
@@ -836,15 +838,77 @@ Integrate static analysis with Integrated Development Environment (IDE).
 
 
 # Chapter 23: Continuous Integration
+Continuous Integration, or CI, is generally defined as “a software development practice where members of a team integrate their work frequently. The fundamental goal of CI is to automatically catch problematic changes as early as possible.
+
+CI and testing is tightly coupled. From a testing perspective, CI is a paradigm to inform the following
+- Which test to run in development/release workflow
+- Compose system under test (SUT)
+
+## CI Concepts
+Life of a code change
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781492082781/files/assets/seag_2302.png)
 
 
+Canarying - deploying to a small percentage of production first
 
+Version skew - a state of a distributed system in which it contains multiple incompatible versions of code
 
+Experiments and feature flags are extremely powerful feedback loops. They reduce deployment risk by isolating changes within modular components that can be dynamically toggled in production.
+
+### Fast feedback loops
+- Accessible and actionable feedback
+### Automation
+- Continuous Build (CB) - integrates the latest code changes at head and runs an automated build and test. Introduce two heads, true head and green head (verified by CB)
+- Continuous Delivery (CD) - a continuous assembling of release candidates, followed by the promotion and testing of those candidates throughout a series of environments—sometimes reaching production and sometimes not.
+- Contiuous Testing
+  - Pre-submit: Fast and reliable ones
+  - Release-candidate testing
+
+Any static configuration you do have should be promoted as part of the release candidate so that it can undergo testing along with its corresponding code.
+
+Release candidate (RC): A cohesive, deployable unit created by an automated process, assembled of code, configuration, and other dependencies that have passed the continuous build.
+
+Using containers such as Docker helps enforce consistency of an RC between environments, from local development onward. Similarly, using orchestration tools like Kubernetes (or in our case, usually Borg), helps enforce consistency between deployments.
+
+Testing on only pre-submit is too expensive.
+
+Benefits of running release-candidate testing, even if it is the same suite that CB ran against the code on post-submit
+- As a sanity check
+- For auditability
+- To allow for cherry picks
+- For emergency pushes
+
+A well-managed alerting system helps to ensure that your Service-Level Objectives (SLOs) are being met. A good CI system helps to ensure that your build is in good shape—the code compiles, tests pass, and you could deploy a new release if you needed to. 
+
+### Challenge of implementing CI
+- Presubmit optimization
+- Culprit finding and failure isolation
+- Resource restraints
+- Failure management (what to do when tests fail)
+- Test instability
+
+### Hermatic Testing
+Hermetic tests: tests run against a test environment (i.e., application servers and resources) that is entirely self-contained (i.e., no external dependencies like production backends).
+
+## CI at Google
+TAP (Test Automation Platform)
+
+Every team has a Build Cop to keep all the tests passing in their particular project, regardless of who breaks them.
 
 # Chapter 24: Continuous Delivery
+- Agility: Release frequently and in small batches
+- Automation: Reduce or remove repetitive overhead of frequent releases
+- Isolation: Strive for modular architecture to isolate changes and make troubleshooting easier
+- Reliability: Measure key health indicators like crashes or latency and keep improving them
+- Data-driven decision making: Use A/B testing on health metrics to ensure quality
+- Phased rollout: Roll out changes to a few users before shipping to everyone
 
-
-
+- **Velocity is a team sport**: The optimal workflow for a large team that develops code collaboratively requires modularity of architecture and near-continuous integration.
+- **Evaluate changes in isolation**: Flag guard any features to be able to isolate problems early.
+- **Make reality your benchmark**: Use a staged rollout to address device diversity and the breadth of the userbase. Release qualification in a synthetic environment that isn’t similar to the production environment can lead to late surprises.
+- **Ship only what gets used**: Monitor the cost and value of any feature in the wild to know whether it’s still relevant and delivering sufficient user value.
+- **Shift left**: Enable faster, more data-driven decision making earlier on all changes through CI and continuous deployment.
+- **Faster is safer**: Ship early and often and in small batches to reduce the risk of each release and to minimize time to market.
 
 
 # Chapter 25: Compute as a Service
