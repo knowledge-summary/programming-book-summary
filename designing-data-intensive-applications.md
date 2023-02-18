@@ -66,6 +66,7 @@ Steps:
 2. Describing Performance
    - Increase load parameter, keep resources unchanged, how is the performance affected?
    - When increase a load parameter, how much increase in resources to keep performance unchanged?
+   - Example: Batch processing - throughput, online system - response time (a distribution of values, using percentile is better than using average)
 
 ### Case study: Twitter
 **Main Operations**: Post tweet and home timeline  
