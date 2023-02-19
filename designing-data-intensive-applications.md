@@ -7,6 +7,7 @@
 - [Chapter 1. Reliable, Scalable, and Maintainable Applications](#chapter-1-reliable-scalable-and-maintainable-applications)
   - [Reliabiltiy](#reliabiltiy)
   - [Scalability](#scalability)
+    - [Describing Performance](#describing-performance)
     - [Case study: Twitter](#case-study-twitter)
 - [Chapter 2. Data Models And Query Language](#chapter-2-data-models-and-query-language)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
@@ -67,6 +68,23 @@ Steps:
    - Increase load parameter, keep resources unchanged, how is the performance affected?
    - When increase a load parameter, how much increase in resources to keep performance unchanged?
    - Example: Batch processing - throughput, online system - response time (a distribution of values, using percentile is better than using average)
+
+### Describing Performance
+Latency and response time is not the same. Response time is what the user see.
+
+Percentiles are abbreviated, median as p50, 95th percentile as p95. High percentiles of response times, also known as tail latencies are important. Slowest requests can be associated with valuable customers. 
+
+Head-of-line blocking - queuing delay
+
+Tail latency amplification - Even if only a small percentage of backend calls are slow, the chance of getting a slow call increases if an end-user request requires multiple backend calls, and so a higher proportion of end-user requests end up being slow
+
+Approximation algorithm - Forward decay, t-digest, HdrHistogram
+
+You need to rethink your architecture on every order of magnitude load increase.
+- Scaling up (vertical scaling, moving to a more powerful machine)
+- Scaling out (horizontal scaling, distributing the load across multiple smaller machines)
+
+An architecture that scales well for a particular application is built around assumptions of which operations will be common and which will be rare—the load parameters.
 
 ### Case study: Twitter
 **Main Operations**: Post tweet and home timeline  
