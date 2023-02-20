@@ -9,6 +9,7 @@
   - [Scalability](#scalability)
     - [Describing Performance](#describing-performance)
     - [Case study: Twitter](#case-study-twitter)
+  - [Maintainability](#maintainability)
 - [Chapter 2. Data Models And Query Language](#chapter-2-data-models-and-query-language)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
@@ -96,6 +97,45 @@ An architecture that scales well for a particular application is built around as
 
 **Load parameter**: The distribution of followers per user (weighted by how often those users tweet)  
 **Final solution**: Hybrid of 2 approaches
+
+## Maintainability
+We can and should design software in such a way that it will hopefully minimize pain during maintenance, and thus avoid creating legacy software ourselves.
+
+Three design principles of for software systems
+- Operability
+- Simplicity
+- Evolvability (extensibility, modifiability, plasticity)
+
+"Good operations can often work around the limitations of bad (or incomplete) software, but good software cannot run reliably with bad operations"
+
+A big ball of mud
+
+Possible symptoms of complexity:
+- Explosion of the state space
+- Tight coupling of modules
+- Tangled dependencies
+- Inconsistent naming and terminology
+- Hacks aimed at solving performance problems
+- Special casing to work around issues elsewhere
+
+Hidden assumptions, unintended consequences, unexpected interactions.
+
+Use abstraction to reduce complexity.
+
+New changes:
+- New facts
+- Previously unanticipated use cases
+- Business priorities change
+- Users request new feature
+- New platforms replace old platforms
+- Legal or regulatory requirements change
+- Growth of the system forces architectual changes
+
+Agile working pattern - test-driven development (TDD) and refactoring.
+
+An application has
+- Functional requirements (what it should do, such as allowing data to be stored, retrieved, searched, and processed in various ways)
+- Nonfunctional requirements (general properties like security, reliability, compliance, scalability, compatibility, and maintainability))
 
 
 # Chapter 2. Data Models And Query Language
