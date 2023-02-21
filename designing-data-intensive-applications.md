@@ -139,7 +139,38 @@ An application has
 
 
 # Chapter 2. Data Models And Query Language
+Data models are perhaps the most important part of developing software, because they have such a profound effect: not only on how the software is written, but also on how we think about the problem that we are solving.
 
+Layers
+1. Model real world in terms of objects or data strcutures, and APIs that manipulate those data structures.
+2. Express objects in terms of general-purpose data model (JSON, XML), tables in relational database, graph model
+3. Database software represents JSON/XML/relationship/graph data in terms of bytes in memory.
+4. Hardware engineers represent bytes in terms of electrical currents, pulses of light, magnetic fields, and more.
+
+Relational model: Data is organized into relations (called tables in SQL), where each relation is an unordered collection of tuples.
+
+Driving force of NOSQL (Not Only SQL)
+- Need for greater scalability (very high write throughput or very large datasets)
+- Preference for open source
+- Specialized query operations that are not well supported by relational model
+- Frustration with restrictiveness of relational schemas, desires for more dynamic and expressive data model
+
+*Polygot persistence* - Using multiple data storage technologies for varying data storage needs across an application
+
+*Impedance mismatch* - Mismatch of application model (e.g. OOP) and SQL data model
+
+Object-relational matching framework - [ActiveRecord](https://guides.rubyonrails.org/active_record_basics.html), [Hibernate](https://hibernate.org/orm/).
+
+Example: Representing a LinkedIn profile
+- Traditional SQL model - put positions, education, and contact information in separate tables
+- SQL standard that supports structured datatypes and XML data (multi-valued data to be stored within a single row)
+- Store JSON/XML as text field and let the application interpret its structure and content
+
+Types of SQL
+- **SQL standards that support XML**: Oracle, IBM DB2, MS SQL Server, PostgreSQL
+- **SQL standards that support JSON**: IBM DB2, MySQL, PostgreSQL
+- **Document-oriented databases**: MongoDB, RethinkDB, CouchDB, Expresso
+  - Has better *locality*
 
 
 # Chapter 3. Storage And Retrieval
