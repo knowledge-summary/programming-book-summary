@@ -171,6 +171,13 @@ Types of SQL
 - **SQL standards that support JSON**: IBM DB2, MySQL, PostgreSQL
 - **Document-oriented databases**: MongoDB, RethinkDB, CouchDB, Expresso
   - Has better *locality*
+  - Not supportive for joins
+
+The advantage of using ID - It has no meaning to humans, it never needs to change.
+
+The disadvantage of not using ID - Anything that is meaningful to humans may need to change in the future. If that information is duplicated, all the redundant copies need to be updated, which leads to write overhead, risk inconsistencies.
+
+The network model
 
 
 # Chapter 3. Storage And Retrieval
