@@ -177,7 +177,13 @@ The advantage of using ID - It has no meaning to humans, it never needs to chang
 
 The disadvantage of not using ID - Anything that is meaningful to humans may need to change in the future. If that information is duplicated, all the redundant copies need to be updated, which leads to write overhead, risk inconsistencies.
 
-The network model
+History - IBM's Information Management System (IMS) using hierarchical model (work well for one-to-many relationship, but doesn't work well for many-to-many relationship)
+
+Hierarchical model represents all data as a tree of records nested within records, much like the JSON strcuture.
+
+Solutions proposed to solve the limitations of hierarchical model:
+- *Network model* (or called CODASYL model) - Generalization of hierarchical model, a record can have multiple parents, instead of one. The links between records were not foreign keys, but more like pointers. Need to transverse from the root record.
+- *Relational model* - Query optimizer automatically decides which parts of the query to execute in which order.
 
 
 # Chapter 3. Storage And Retrieval
