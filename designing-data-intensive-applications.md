@@ -185,6 +185,13 @@ Solutions proposed to solve the limitations of hierarchical model:
 - *Network model* (or called CODASYL model) - Generalization of hierarchical model, a record can have multiple parents, instead of one. The links between records were not foreign keys, but more like pointers. Need to transverse from the root record.
 - *Relational model* - Query optimizer automatically decides which parts of the query to execute in which order.
 
+Relational and document databases represents many-to-one and many-to-many relationships in a similar fashion. The related item is referenced by a unique identifier, *foreign key* (relational model), *document reference* (document model).
+
+| Data model | Pro | Con |
+| --- | --- | --- |
+| Document data model | - Schema flexibility <br/> - Better performance due to locality <br/> - For some applications it is closer to the data structures used by the application | - Poor supports for join |
+| Relational data model | - Better supports for joins, and many-to-one and many-to-many relationships | - Shredding (splitting a document-like structure into multiple tables) can lead to cumbersome schemas and unnecessarily complicated application code |
+
 
 # Chapter 3. Storage And Retrieval
 
