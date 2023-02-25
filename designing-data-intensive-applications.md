@@ -192,6 +192,13 @@ Relational and document databases represents many-to-one and many-to-many relati
 | Document data model | - Schema flexibility <br/> - Better performance due to locality <br/> - For some applications it is closer to the data structures used by the application | - Poor supports for join |
 | Relational data model | - Better supports for joins, and many-to-one and many-to-many relationships | - Shredding (splitting a document-like structure into multiple tables) can lead to cumbersome schemas and unnecessarily complicated application code |
 
+The schema-on-read approach is advantageous if the items in the collection don't all have the same structure. For example, having different types of objects which is not practical to put each object in its own table.
+
+The locality advantage of document only applies when you need large parts of document at the same time.
+
+Update to document can be wasteful as the entire document usually needs to be rewritten.
+
+Grouping related data together for locality is not limited to the document model. E.g. Google's Spanner
 
 # Chapter 3. Storage And Retrieval
 
