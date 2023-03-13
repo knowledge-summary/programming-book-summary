@@ -166,7 +166,7 @@ Example: Representing a LinkedIn profile
 - SQL standard that supports structured datatypes and XML data (multi-valued data to be stored within a single row)
 - Store JSON/XML as text field and let the application interpret its structure and content
 
-Types of SQL
+Other types of SQL
 - **SQL standards that support XML**: Oracle, IBM DB2, MS SQL Server, PostgreSQL
 - **SQL standards that support JSON**: IBM DB2, MySQL, PostgreSQL
 - **Document-oriented databases**: MongoDB, RethinkDB, CouchDB, Expresso
@@ -198,7 +198,18 @@ The locality advantage of document only applies when you need large parts of doc
 
 Update to document can be wasteful as the entire document usually needs to be rewritten.
 
-Grouping related data together for locality is not limited to the document model. E.g. Google's Spanner
+Grouping related data together for locality is not limited to the document model. E.g. 
+- Google's Spanner allows schema to declare that a table's rows should be interleaved (nested) within a parent table
+- Oracle uses multi-table index cluster tables
+- Bigtable data model (used in Cassandra and HBase) has column-family concept
+
+SQL is declarative. In a declarative query language, you just specify the pattern of the data you want. It is up to the database system's query optimizer to decide which indexes and join methods to use.
+
+Benefits of declarative language
+- More limited in functionality gives the database much more room for automatic optimizations
+- lend themselves to parallel execution
+
+CSS and XSL are both declarative languages for specifying the styling of a document.
 
 # Chapter 3. Storage And Retrieval
 
