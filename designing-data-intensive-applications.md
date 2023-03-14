@@ -11,6 +11,8 @@
     - [Case study: Twitter](#case-study-twitter)
   - [Maintainability](#maintainability)
 - [Chapter 2. Data Models And Query Language](#chapter-2-data-models-and-query-language)
+  - [Relational Model vs Document Model](#relational-model-vs-document-model)
+  - [Query Language for Data](#query-language-for-data)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
 - [Part 2: Distributed Data](#part-2-distributed-data)
@@ -147,6 +149,7 @@ Layers
 3. Database software represents JSON/XML/relationship/graph data in terms of bytes in memory.
 4. Hardware engineers represent bytes in terms of electrical currents, pulses of light, magnetic fields, and more.
 
+## Relational Model vs Document Model
 Relational model: Data is organized into relations (called tables in SQL), where each relation is an unordered collection of tuples.
 
 Driving force of NOSQL (Not Only SQL)
@@ -203,6 +206,9 @@ Grouping related data together for locality is not limited to the document model
 - Oracle uses multi-table index cluster tables
 - Bigtable data model (used in Cassandra and HBase) has column-family concept
 
+## Query Language for Data
+Declarative query and MapReduce query.
+
 SQL is declarative. In a declarative query language, you just specify the pattern of the data you want. It is up to the database system's query optimizer to decide which indexes and join methods to use.
 
 Benefits of declarative language
@@ -210,6 +216,22 @@ Benefits of declarative language
 - lend themselves to parallel execution
 
 CSS and XSL are both declarative languages for specifying the styling of a document.
+
+Alternative: Imperative query, e.g. use Javascript to change the style using for loop which is likely a more inferior method
+
+*MapReduce* is a programming model for processing large amount of data in bulk across many machines. It is neither declarative or imperative but somewhat in between.
+- `map`/`collect` 
+- `reduce`/`fold`/`inject`
+
+`map` and `reduce` are somewhat restrictive in what they are allowed to do. This allows the functions to be run everywhere, in any order, and rerun them on failure.
+- Must be pure function
+  - Only use the data passed as input
+  - No additional database queries
+  - Must not have side effects
+
+MapReduce is fairly low-level programming model for distribution execution on a cluster of machines. SQL is higher-level query languages.
+
+
 
 # Chapter 3. Storage And Retrieval
 
