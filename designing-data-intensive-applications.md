@@ -13,6 +13,9 @@
 - [Chapter 2. Data Models And Query Language](#chapter-2-data-models-and-query-language)
   - [Relational Model vs Document Model](#relational-model-vs-document-model)
   - [Query Language for Data](#query-language-for-data)
+  - [Graph-Like Data Model](#graph-like-data-model)
+    - [Property graph](#property-graph)
+    - [Triple Store](#triple-store)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
 - [Part 2: Distributed Data](#part-2-distributed-data)
@@ -231,7 +234,149 @@ Alternative: Imperative query, e.g. use Javascript to change the style using for
 
 MapReduce is fairly low-level programming model for distribution execution on a cluster of machines. SQL is higher-level query languages.
 
+MapReduce is more challenging to use as you need to write two carefully coordinated Javascript functions. Declarative query language offers more opportunities for query optimizer to improve performance. 
 
+MongoDB 2.2 added support for a declarative query language called the aggregation pipeline.
+
+Example:
+- SQL
+  ``` sql
+  SELECT date_trunc('month', observation_timestamp) AS observation_month, 
+        sum(num_animals) AS total_animals
+  FROM observations
+  WHERE family = 'Sharks'
+  GROUP BY observation_month;
+  ```
+- Imperative
+  ``` javascript
+  if (user && user.name && !user.first_name) {
+      // Documents written before Dec 8, 2013 don't have first_name
+      user.first_name = user.name.split(" ")[0];
+  }
+  ```
+- MapReduce
+  ``` sql
+  db.observations.mapReduce(
+      function map() { 2
+          var year  = this.observationTimestamp.getFullYear();
+          var month = this.observationTimestamp.getMonth() + 1;
+          emit(year + "-" + month, this.numAnimals); 3
+      },
+      function reduce(key, values) { 4
+          return Array.sum(values); 5
+      },
+      {
+          query: { family: "Sharks" }, 1
+          out: "monthlySharkReport" 6
+      }
+  );
+  ```
+- MongoDB aggregation pipeline
+  ``` sql
+  db.observations.aggregate([
+      { $match: { family: "Sharks" } },
+      { $group: {
+          _id: {
+              year:  { $year:  "$observationTimestamp" },
+              month: { $month: "$observationTimestamp" }
+          },
+          totalAnimals: { $sum: "$numAnimals" }
+      } }
+  ]);
+  ```
+
+## Graph-Like Data Model
+A graph consists of two kinds of objects:
+- *vertices* (aka *nodes*, *entities*)
+- *edges* (aka *relationships*, *arcs*)
+
+Graphs are not limited to homogenous data.
+
+Different ways of structuring and querying data in graphs
+- *property graph* model (e.g. Neo4j, Titan, InfiniteGraph)
+- *triple-store* model (e.g. Datomic, AllegroGraph, and others)
+
+Declarative query language for graphs
+- Cypher
+- SPARQL
+- Datalog
+
+Graph query language - Gremlin  
+Graph processing framework - Pregel
+
+### Property graph
+Each vertex consists of 
+- A unique identifier
+- A set of outgoing edges
+- A set of incoming edges
+- A collection of properties (key-value pairs)
+
+Each edges consists of
+- A unique identifier
+- The vertex at which the edge starts (the tail vertex)
+- The vertex at which the edge ends (the head vertex)
+- A label to describe the kind of relationship between the two vertices
+- A collection of properties (key-value pairs)
+
+Can think: graph = vertices table + edges table
+
+Graphs are good for evolvability
+
+*Cypher* is a declarative query language for property graphs, created for Neo4j graph database.
+
+Example of creating the graph data
+```
+CREATE
+  (NAmerica:Location {name:'North America', type:'continent'}),
+  (USA:Location      {name:'United States', type:'country'  }),
+  (Idaho:Location    {name:'Idaho',         type:'state'    }),
+  (Lucy:Person       {name:'Lucy' }),
+  (Idaho) -[:WITHIN]->  (USA)  -[:WITHIN]-> (NAmerica),
+  (Lucy)  -[:BORN_IN]-> (Idaho)
+```
+
+Example of querying from graph database. Finding people born in US and living in Europe
+```
+MATCH
+  (person) -[:BORN_IN]->  () -[:WITHIN*0..]-> (us:Location {name:'United States'}),
+  (person) -[:LIVES_IN]-> () -[:WITHIN*0..]-> (eu:Location {name:'Europe'})
+RETURN person.name
+```
+
+### Triple Store
+Form: *(subject, predictive, object)*
+
+Data can be written as triples in a format called *Turtle*, a subset of *Notation3 (N3)*.
+
+Example:
+```
+@prefix : <urn:example:>.
+_:lucy     a :Person;   :name "Lucy";          :bornIn _:idaho.
+_:idaho    a :Location; :name "Idaho";         :type "state";   :within _:usa.
+```
+
+Triple store is closely linked to the *semantic web*.
+
+Semantic web: website is human readable, hence, website can publish information that as machine-readable data, forming web of data (haven't shown any sign of being realized in practice)
+
+*RFD data model* (Resource Description Framework) - a mechanism for different websites to publish data in a consistent format (can be in XML format or Turtle)
+
+*SPARQL* is a query language for triple-stores using the RDF data model. Cypher's pattern matching is borrowed from SPARQL.
+```
+PREFIX : <urn:example:>
+
+SELECT ?personName WHERE {
+  ?person :name ?personName.
+  ?person :bornIn  / :within* / :name "United States".
+  ?person :livesIn / :within* / :name "Europe".
+}
+```
+
+```
+(person) -[:BORN_IN]-> () -[:WITHIN*0..]-> (location)   # Cypher
+
+?person :bornIn / :within* ?location.                   # SPARQL
+```
 
 # Chapter 3. Storage And Retrieval
 
