@@ -16,6 +16,7 @@
   - [Graph-Like Data Model](#graph-like-data-model)
     - [Property graph](#property-graph)
     - [Triple Store](#triple-store)
+    - [Datalog](#datalog)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
 - [Part 2: Distributed Data](#part-2-distributed-data)
@@ -361,7 +362,7 @@ Semantic web: website is human readable, hence, website can publish information 
 
 *RFD data model* (Resource Description Framework) - a mechanism for different websites to publish data in a consistent format (can be in XML format or Turtle)
 
-*SPARQL* is a query language for triple-stores using the RDF data model. Cypher's pattern matching is borrowed from SPARQL.
+*SPARQL* is a query language for triple-stores using the RDF data model. Cypher's pattern matching is borrowed from SPARQL, they look quite similar
 ```
 PREFIX : <urn:example:>
 
@@ -376,6 +377,17 @@ SELECT ?personName WHERE {
 (person) -[:BORN_IN]-> () -[:WITHIN*0..]-> (location)   # Cypher
 
 ?person :bornIn / :within* ?location.                   # SPARQL
+```
+
+### Datalog
+Datalog is an old language that provides foundation that later query language build upon. It is a query language of Datomic. Cascalog is a Datalog implementation for querying large datasets in Hadoop.
+
+Datalog's data model: *predicate(subject, object)*
+
+Example:
+```
+name(namerica, 'North America').
+type(namerica, continent).
 ```
 
 # Chapter 3. Storage And Retrieval

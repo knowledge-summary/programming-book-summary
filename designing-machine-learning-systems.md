@@ -33,6 +33,8 @@
     - [Data Passing Through Real-Time Transport](#data-passing-through-real-time-transport)
   - [Batch Processing vs Stream Processing](#batch-processing-vs-stream-processing)
 - [Chapter 4: Training Data](#chapter-4-training-data)
+  - [Sampling](#sampling)
+    - [Nonprobability Sampling](#nonprobability-sampling)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -62,13 +64,13 @@ ML is an approach to **learn** **complex patterns** from **existing data** and u
 - **Learn**: the system has the capacity to learn
 - **Complex patterns**: there are patterns to learn, and they are complex
 - **Existing data**: data is available, or it's possible to collect data
-- **Predctions**: it's a predictive problem (eg: approximation for compute-intensive problems)
+- **Predictions**: it's a predictive problem (eg: approximation for compute-intensive problems)
 - **Unseen data**: unseen data shares patterns with the training data
 
 Additional Problem Characteristics
 - Repetitive
 - The cost of wrong prediction is cheap
-- At sclae
+- At scale
 - The patterns are constantly changing
 
 Conditions where ML shoudln't be used:
@@ -190,7 +192,7 @@ Text is readable but use more space, vice versa for binary format.
 Data is organized into relations; each relations is a set of tuples.
 
 It is often desirable for relations to be normalized. **Data normalization** can follow normal forms such as first normal form (1NF), second normal form (2NF), etc.  
-**Pro**: helps to reduce redundancy and improve data integrity.
+**Pro**: helps to reduce redundancy and improve data integrity.  
 **Con**: Data is spread across multiple relations. Joining can be expensive for large tables.  
 
 Most popular query language - SQL
@@ -235,10 +237,10 @@ Types of database workload
 - Online analytical processing (OLAP)
 
 Transactional databases are designed to satisfy the low latency, high availability requirements. They are usually row-based. They usually follow ACID, which stands for
-- Atomicity - To gurantee that all the steps in a transaction are completed as a group, which means all steps must fail when any steps fail.
-- Consistency - To gurantee that all the transactions coming through must follow predefined rules (eg: must be made by valid user)
-- Isolation - To gurantee two transactions that happen at the same time as if they were isolated (eg: two users shouldn't get the same drive on Uber)
-- Durability - To gurantee that once a transaction has been committed, it will remain commited even in the case of system failure (eg: ride continue even when phone dies)
+- **Atomicity** - To gurantee that all the steps in a transaction are completed as a group, which means all steps must fail when any steps fail.
+- **Consistency** - To gurantee that all the transactions coming through must follow predefined rules (eg: must be made by valid user)
+- **Isolation** - To gurantee two transactions that happen at the same time as if they were isolated (eg: two users shouldn't get the same drive on Uber)
+- **Durability** - To gurantee that once a transaction has been committed, it will remain commited even in the case of system failure (eg: ride continue even when phone dies)
 
 Systems that do not meet the ACID criteria are sometimes called BASE (Basically Available, Soft state, and Eventual consistency), which has a more vague definition.
 
@@ -319,9 +321,29 @@ Tools for streaming data: Apache Flink, KSQL, Spark Streaming
 
 
 # Chapter 4: Training Data
+Common challenges in creating training data
+- Label multiplicity problem
+- The lack of labels problem
+- The class imbalance problem
+- Lack of data problem
+
 Data is full of potential biases. These biases can have many possible causes. There are biases caused during collecting, sampling or labelling. Historical data might be embedded with human biases, and ML models trained on this data can perpetuate them. Use data but don't trust it too much!
 
+## Sampling
+Sampling can happen in different steps of an ML project lifecycle.
+- Sampling from real world to create dataset
+- Sampling from dataset to split training and test dataset
+- Sampling from ML events for monitoring
 
+Sampling allows quick experiments.
+
+Two major families of sampling, *nonprobability sampling* and *random sampling*.
+
+### Nonprobability Sampling
+- Convenience sampling
+- Snowball sampling
+- Judgement sampling
+- Quota sampling
 
 
 
