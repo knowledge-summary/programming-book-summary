@@ -35,6 +35,7 @@
 - [Chapter 4: Training Data](#chapter-4-training-data)
   - [Sampling](#sampling)
     - [Nonprobability Sampling](#nonprobability-sampling)
+    - [Probability-Based Sampling](#probability-based-sampling)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -340,11 +341,31 @@ Sampling allows quick experiments.
 Two major families of sampling, *nonprobability sampling* and *random sampling*.
 
 ### Nonprobability Sampling
-- Convenience sampling
-- Snowball sampling
-- Judgement sampling
-- Quota sampling
+- **Convenience sampling** -  Sampling based on data availability
+- **Snowball sampling** - Future samples are selected based on existing samples. (e.g. scrape Twitter users, and their connections)
+- **Judgement sampling** - Experts decide what samples to include
+- **Quota sampling** - Select samples based on certain quotas for certain slices of data without any randomization. (e.g. 100 responses from 10-30, 30-50, above 50)
 
+Nonprobability sampling are riddled with selection biases. Example: language model use data that can be easily collected, sentiment analysis use review data with natural labels, self-driving cars data are from the company location with more specific weather.
+
+### Probability-Based Sampling
+- **Simple Random Sampling** - All samples in the population have equal probabilities of being selected.
+  - Pro: Easy to implement
+  - Con: Rare categories of data can be missing
+- **Stratified Sampling** - Divide popultation into group (stratum) and sample from each groups separately
+  - Con: Might not work if sample belong to multiple groups
+- **Weighted Sampling** - Each sample is given a weight, which determine the probability of it being sampled. (e.g. recent data is more valuable and hence given a higher weight)
+  - In python: this can be done using `random choices` with the `weights` argument
+  - Another similar concepts, **sample weights** are used to assign weights or importance to training samples, which affect the loss function
+- **Reservoir Sampling** - useful for streaming data
+  - Steps
+    1. Put the first k elements into the reservoir.
+    2. For each incoming n-th element, generate a random number `i` such that `1 <= i <= n`
+    3. If `1 <= i <= k`, replace the i-th element in the reservoir with the n-th element. Else, do nothing.
+  - Each incoming n-th element have `k/n` probability of being selected
+- **Importance Sampling** - Allow us to sample from a distribution when we only have access to another distribution.
+  - Example: `P(x)` is hard to sample, we sample with proposal distribution / importance distribution `Q(x)` and weigh this sample by `P(x)/Q(x)`.
+  - Example use case in ML: policy-based reinforcement learning
 
 
 # Chapter 5: Feature Engineering
