@@ -36,6 +36,9 @@
   - [Sampling](#sampling)
     - [Nonprobability Sampling](#nonprobability-sampling)
     - [Probability-Based Sampling](#probability-based-sampling)
+  - [Labeling](#labeling)
+    - [Hand labels](#hand-labels)
+    - [Natural labels](#natural-labels)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -366,6 +369,42 @@ Nonprobability sampling are riddled with selection biases. Example: language mod
 - **Importance Sampling** - Allow us to sample from a distribution when we only have access to another distribution.
   - Example: `P(x)` is hard to sample, we sample with proposal distribution / importance distribution `Q(x)` and weigh this sample by `P(x)/Q(x)`.
   - Example use case in ML: policy-based reinforcement learning
+
+## Labeling
+Most ML models in production today are supervised, and hence need labelled data. The performance depends heavily on the quality and quantity of the labeled data it's trained on.
+
+Data labeling has gone from being an auxiliary task to being a core function of many ML teams in production.
+
+Type of labeling
+- Hand labels
+- Natural labels
+
+### Hand labels
+Cons:
+- Expensive, especially when subject matter expertise is required
+- Threat to data privacy (e.g. confidential financial information, patient's medical records)
+- Slow (e.g. lung cancers X-rays label took almost a year to obtain sufficient label)
+  - Make model less adaptive to changing environment and requirements
+- Label multiplicity
+  - Example: Different labelers may label entity differently (e.g. `[Dark Lord] of the [Sith]` vs `[Dark Lord of the Sith]`)
+  - Solution: Set clearer rules
+
+**Data lineage** - Keep track of the origin of each of the data samples as well as its labels
+
+### Natural labels
+Natural labels are model's predictions that can be automatically evaluated or partially evaluated by the system.
+
+Example: Estimated time of arrival of a certain route on Google Map, stock price prediction
+
+The canonical example of tasks with natural labels is *recommender system*. 
+
+The label of recommender system is whether the recommended items get clicked within a certain time frame. The recommendation that don't get clicked can be presumed to be bad, which is called *implicit label* (negative label presumed due to the lack of positive label).
+
+**Behavioral labels** - Natural labels that are inferred from user behaviors like clicks or ratings
+
+Even if the task doesn't inherently have natural labels, it might be possible to set up feedback collection. (e.g. Like button in news, asking for user translation on Google translate)
+
+**Feedback loop length** - The time between the serving prediction and receive feedback.
 
 
 # Chapter 5: Feature Engineering
