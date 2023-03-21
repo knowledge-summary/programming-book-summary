@@ -39,6 +39,7 @@
   - [Labeling](#labeling)
     - [Hand labels](#hand-labels)
     - [Natural labels](#natural-labels)
+    - [Methods to Handle the Lack of Labels](#methods-to-handle-the-lack-of-labels)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -405,6 +406,21 @@ The label of recommender system is whether the recommended items get clicked wit
 Even if the task doesn't inherently have natural labels, it might be possible to set up feedback collection. (e.g. Like button in news, asking for user translation on Google translate)
 
 **Feedback loop length** - The time between the serving prediction and receive feedback.
+- Minute long - Recommend product in Amazon, recommend people to follow on Twitter
+- Hours - Blog post, YouTube video
+
+User feedbacks can differ in volume, strength of signal and feedback loop length. For example, clicks is high is volume but weaker signal, while adding a product to cart has lower volume but stronger signal. Focusing on any is valid approach.
+
+There might also be premature negative label.
+
+### Methods to Handle the Lack of Labels
+| Method | How | Groud truth requirement |
+| --- | --- | --- |
+| Weak supervision | Leverages (often noisy) heuristics to generate labels | No, but a small number of lables are recommended to guide the development of heuristics |
+| Semi-supervision | Leverage structural assumptions to generate labels | Yes, a small number of initial labels as seed to generate more labels |
+| Transfer learning | Leverage models pretrained on another task for your new task | No for zero shot learning, yes for fine-tuning, the number of ground truths required is often much smaller than training from scratch |
+| Active learning | Labels data samples that are most useful for your model | Yes |
+
 
 
 # Chapter 5: Feature Engineering
