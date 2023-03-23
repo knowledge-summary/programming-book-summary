@@ -40,6 +40,8 @@
     - [Hand labels](#hand-labels)
     - [Natural labels](#natural-labels)
     - [Methods to Handle the Lack of Labels](#methods-to-handle-the-lack-of-labels)
+      - [Weak Supervision](#weak-supervision)
+      - [Semi-supervision](#semi-supervision)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -420,6 +422,35 @@ There might also be premature negative label.
 | Semi-supervision | Leverage structural assumptions to generate labels | Yes, a small number of initial labels as seed to generate more labels |
 | Transfer learning | Leverage models pretrained on another task for your new task | No for zero shot learning, yes for fine-tuning, the number of ground truths required is often much smaller than training from scratch |
 | Active learning | Labels data samples that are most useful for your model | Yes |
+
+#### Weak Supervision
+Rely on heuristics, which can be developed with subject matter expertise, to label data.
+
+Most popular open source tool: Snorkel (developed bu Stanford AI Lab). 
+
+*labeling function (LF)* - a function that encode heuristics
+
+Types of heuristics
+- Keyword heuristic
+- Regular expressions
+- Database lookup
+- The output of other models
+
+Heuristics can be noisy and multiple heuristics can have conflicts.
+
+Pro:
+- Can be helpful when the data has strict privacy requirements.
+- Much easier to rerun comparing to hand label
+
+#### Semi-supervision
+*Literature survey: [link](https://pages.cs.wisc.edu/~jerryzhu/pub/ssl_survey.pdf), [link](https://link.springer.com/article/10.1007/s10994-019-05855-6)*
+
+Leverages structural assumptions to generate new labels based on a small set of initial labels.
+
+Methods:
+- *Self training* - Training a model with existing labels and generate predictions. Assuming that the predictions with high raw probability scores are correct, added these labels to the training set and train a new model on the expanded training set. Iterate until the model is satisfactory.
+- Assume that data samples with similar characteristics share the same label. E.g. all hashtags in the same tweet can be tagged to the same label
+- Pertubation-based method - Apply small pertubations to training instances to obtain new training instances, assumptions that small pertubations to a sample shouldn't change its label. The perturbed samples have the same labels as the unperturbed samples.
 
 
 
