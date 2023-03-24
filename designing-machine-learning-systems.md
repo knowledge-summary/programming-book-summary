@@ -42,6 +42,9 @@
     - [Methods to Handle the Lack of Labels](#methods-to-handle-the-lack-of-labels)
       - [Weak Supervision](#weak-supervision)
       - [Semi-supervision](#semi-supervision)
+      - [Transfer learning](#transfer-learning)
+      - [Active learning](#active-learning)
+  - [Class Imbalance](#class-imbalance)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -450,7 +453,37 @@ Leverages structural assumptions to generate new labels based on a small set of 
 Methods:
 - *Self training* - Training a model with existing labels and generate predictions. Assuming that the predictions with high raw probability scores are correct, added these labels to the training set and train a new model on the expanded training set. Iterate until the model is satisfactory.
 - Assume that data samples with similar characteristics share the same label. E.g. all hashtags in the same tweet can be tagged to the same label
-- Pertubation-based method - Apply small pertubations to training instances to obtain new training instances, assumptions that small pertubations to a sample shouldn't change its label. The perturbed samples have the same labels as the unperturbed samples.
+- Pertubation-based method - Apply small pertubations to training instances to obtain new training instances, assumptions that small pertubations to a sample shouldn't change its label. The perturbed samples have the same labels as the unperturbed samples. (e.g. adding white noise to image, random value to embedding)
+
+Most useful when the number of training labels is limited.
+
+Challenge: how much of the limited data should be used to evaluate multiple candidate model
+
+Solution: Use a reasonably large evaluation set to select the best model, then continue training the champion model on the evaluation set.
+
+#### Transfer learning
+Reused a developed model as starting point for a model on a second task.
+
+Usually base task is trained on cheap and abundant training data.
+
+Transfer learning lowers the entry barrier into ML by reducing upfront cost for labeling data. It enables many applications that were previously impossible due to the lack of training samples.
+
+#### Active learning
+*Literature survey: [link](https://burrsettles.com/pub/settles.activelearning.pdf)*
+
+Label the samples that are most helpful to the models according to some metrics or heuristics.
+
+Example: 
+- Using metric uncertainty measurement, labels the example that the models are less certain about
+- Query-by-committee (ensemble method) - Use a committee of several candidate models to vote for which label next based on uncertainty
+- Select model that reduce the loss the most or give highest gradient descent updates
+
+
+Active learning can be helpful when works with real-time data. Active learning allows your model to learn more effectively in real time and adapt faster to changing environments
+
+## Class Imbalance
+
+
 
 
 
