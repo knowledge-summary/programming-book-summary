@@ -482,8 +482,24 @@ Example:
 Active learning can be helpful when works with real-time data. Active learning allows your model to learn more effectively in real time and adapt faster to changing environments
 
 ## Class Imbalance
+Class imbalance typically refers to a problem that there is a substantial difference in the number of samples in each class of the training data. E.g. X-ray images of 99% normal patient and 1% cancer patient.
 
+Can also happen to regression, e.g. strongly left-skewed or right-skewed.
 
+Class imbalance makes ML difficult for the following three reasons.
+1. Insufficient signal for your model to learn to detect the minority class
+2. Make it easier for the modelto stuck in nonoptimal solution (e.g. model learn to predict normal as it is 99% accuracy)
+3. Asymmetric costs of error (rare class costs more), and the model need to be able to handle it
+
+Class imbalance is a norm in real-world settings. (e.g. fraud detection, disease screening, resume screening, object detection)
+
+Causes of class imbalance
+1. Inherent
+2. Biases during the sampling process (e.g. spam email are filtered before reaching inbox, getting from inbox might result in limited percentage of spam label)
+3. Labeling error (e.g. labeler not aware of a label and hence only label the other labels)
+
+Solutions to handle class imbalance
+1. 
 
 
 
