@@ -703,7 +703,13 @@ Test should be **DAMP** (Descriptive and Meaningful Phrases)
 
 
 # Chapter 13: Test Doubles
+A **test doubles** is an object or function that can stand in for a real implementation in a test. (e.g. in-memory database, trigger an rare error condition, ensure heavyweight function is called without actually executing the function's implementation, testing credit card transaction without incurring transaction fee)
 
+- Testability (e.g. code that is flexible to use in-memory databases)
+- Applicability
+- Fidelity - how closely the behaviour of a test double resembles the behaviour of the real implementations
+
+Test doubles often need to be vastly simpler than the real implementations.
 
 
 
