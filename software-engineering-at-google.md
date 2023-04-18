@@ -709,9 +709,19 @@ A **test doubles** is an object or function that can stand in for a real impleme
 - Applicability
 - Fidelity - how closely the behaviour of a test double resembles the behaviour of the real implementations
 
+Although tests were easy to write, they might require constant effort to maintain while rarely finding bugs. Many Google engineers avoid mocking frameworks in favor of writing more realistic tests.
+
 Test doubles often need to be vastly simpler than the real implementations.
 
+A *seam* is a way to make code testable by allowing the use of test doubles, it makes it possibl to use different dependencies for different systems.
 
+*Dependency injection* is a common technique for introducing seams. (e.g. Java Framework: [Guice](https://github.com/google/guice), [Dagger](https://dagger.dev/)).
+
+Dynamically typed languages such as Python or JavaScript allows dynamically replace individual functions or object methods. This makes it possible to use real implemenetations of dependencies in test while only overriding functions or methods of the dependency that are unsuitable for tests.
+
+Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase. The later testability is taken into account, the more difficult it is to apply to a codebase.
+
+## Mocking Framework
 
 
 # Chapter 14: Larger Testing
