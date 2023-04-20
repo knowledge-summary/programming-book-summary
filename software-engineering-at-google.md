@@ -722,6 +722,14 @@ Dynamically typed languages such as Python or JavaScript allows dynamically repl
 Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase. The later testability is taken into account, the more difficult it is to apply to a codebase.
 
 ## Mocking Framework
+A mocking framework is a software library that makes it easier to create test doubles within tests. (e.g. Mockito for Java)
+
+Mock is a test double whose behaviour is specified inline in a test.
+
+## Techniques for Using Test Doubles
+- **Faking** - A fake is a lightweight implementation of an API that behaves similar to the real implemenetation but isn't suitable for production (e.g. in-memory database)
+- **Stubbing** - A process of giving behaviour to a function that otherwise has no behaviour on its own, specify the return value of a function
+- **Interaction Testing** - A way to validate how a function is called without actually calling the implementation of the function
 
 
 # Chapter 14: Larger Testing
