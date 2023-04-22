@@ -709,8 +709,6 @@ A **test doubles** is an object or function that can stand in for a real impleme
 - Applicability
 - Fidelity - how closely the behaviour of a test double resembles the behaviour of the real implementations
 
-Although tests were easy to write, they might require constant effort to maintain while rarely finding bugs. Many Google engineers avoid mocking frameworks in favor of writing more realistic tests.
-
 Test doubles often need to be vastly simpler than the real implementations.
 
 A *seam* is a way to make code testable by allowing the use of test doubles, it makes it possibl to use different dependencies for different systems.
@@ -719,17 +717,39 @@ A *seam* is a way to make code testable by allowing the use of test doubles, it 
 
 Dynamically typed languages such as Python or JavaScript allows dynamically replace individual functions or object methods. This makes it possible to use real implemenetations of dependencies in test while only overriding functions or methods of the dependency that are unsuitable for tests.
 
-Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase. The later testability is taken into account, the more difficult it is to apply to a codebase.
-
-## Mocking Framework
-A mocking framework is a software library that makes it easier to create test doubles within tests. (e.g. Mockito for Java)
+A mocking framework is a software library that makes it easier to create test doubles within tests, allows you to replace an object with a mock. (e.g. Mockito for Java)
 
 Mock is a test double whose behaviour is specified inline in a test.
 
-## Techniques for Using Test Doubles
-- **Faking** - A fake is a lightweight implementation of an API that behaves similar to the real implemenetation but isn't suitable for production (e.g. in-memory database)
-- **Stubbing** - A process of giving behaviour to a function that otherwise has no behaviour on its own, specify the return value of a function
-- **Interaction Testing** - A way to validate how a function is called without actually calling the implementation of the function
+Techniques for Using Test Doubles
+- **Faking** - A fake is a lightweight implementation of an API that behaves similar to the real implementation but isn't suitable for production (e.g. in-memory database)
+- **Stubbing** - A process of giving behaviour to a function that otherwise has no behaviour on its own, specify the return value of a function (stub the return value)
+- **Interaction Testing** (called *mocking*) - A way to validate how a function is called without actually calling the implementation of the function (e.g. return error when function isn't called the correct way - wrong argument, not being called)
+
+Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase. The later testability is taken into account, the more difficult it is to apply to a codebase.
+
+Although tests were easy to write, they might require constant effort to maintain while rarely finding bugs. Many Google engineers avoid mocking frameworks in favor of writing more realistic tests.
+
+At Google, the preference for real implementations developed over time as we saw that overuse of mocking frameworks had a tendency to pollute tests with repetitive code that go out of sync with the real implementations and made refactoring difficult.
+
+Preferring new implementation in tests is known as **classical testing**. Preference to use mocking frameworks instead of real implementation is called **mockist testing**.
+
+Paper by ThoughtWorks regarding how to use mock objects - [link](http://jmock.org/oopsla2004.pdf)
+
+Google created a `@DoNotMock` annotation in JavaScript.
+
+Every time a mocking framework is used for stubbing or interaction testing, it duplicates behavior provided by the API.
+
+How to decide when to use a real implementation
+- Execution time - It is often simpler to use a real implementation until it becomes too slow to use
+- Determinism - A real implementation might be more complex and increase the chance of non-deterministic (e.g. multithreading which occasionally fail, not hermetic code, code that depends on clock time)
+- Dependency construction - A real implementation might have too many dependencies
+  - The construction need to be flexible enough to be able to use test doubles rather than hardcoding the implementation that will be used for production
+
+
+
+
+
 
 
 # Chapter 14: Larger Testing
@@ -918,6 +938,9 @@ Hermetic tests: tests run against a test environment (i.e., application servers 
 TAP (Test Automation Platform)
 
 Every team has a Build Cop to keep all the tests passing in their particular project, regardless of who breaks them.
+
+
+
 
 # Chapter 24: Continuous Delivery
 - Agility: Release frequently and in small batches
