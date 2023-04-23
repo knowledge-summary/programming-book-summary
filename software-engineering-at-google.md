@@ -711,6 +711,9 @@ A **test doubles** is an object or function that can stand in for a real impleme
 
 Test doubles often need to be vastly simpler than the real implementations.
 
+A good test should need to change only if user-facing behavior of an API changes.
+
+## Basic Concepts
 A *seam* is a way to make code testable by allowing the use of test doubles, it makes it possibl to use different dependencies for different systems.
 
 *Dependency injection* is a common technique for introducing seams. (e.g. Java Framework: [Guice](https://github.com/google/guice), [Dagger](https://dagger.dev/)).
@@ -721,11 +724,12 @@ A mocking framework is a software library that makes it easier to create test do
 
 Mock is a test double whose behaviour is specified inline in a test.
 
-Techniques for Using Test Doubles
+## Techniques for Using Test Doubles
 - **Faking** - A fake is a lightweight implementation of an API that behaves similar to the real implementation but isn't suitable for production (e.g. in-memory database)
 - **Stubbing** - A process of giving behaviour to a function that otherwise has no behaviour on its own, specify the return value of a function (stub the return value)
 - **Interaction Testing** (called *mocking*) - A way to validate how a function is called without actually calling the implementation of the function (e.g. return error when function isn't called the correct way - wrong argument, not being called)
 
+## Real Implementation
 Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase. The later testability is taken into account, the more difficult it is to apply to a codebase.
 
 Although tests were easy to write, they might require constant effort to maintain while rarely finding bugs. Many Google engineers avoid mocking frameworks in favor of writing more realistic tests.
@@ -746,10 +750,61 @@ How to decide when to use a real implementation
 - Dependency construction - A real implementation might have too many dependencies
   - The construction need to be flexible enough to be able to use test doubles rather than hardcoding the implementation that will be used for production
 
+## Deep dive into different techniques
+### Faking
+Example: A filesystem that store the file contents in memory instead of on disk
 
+Pro: 
+- Execute quickly and allow you to effectively test the code without the drawbacks of using real implementations
+- Radically improve the testing experience, be an enormous boost to engineering velocity
+- Useful when real implementations is slow and flaky, and there is a large user base
 
+Trait:
+- Ideally, the team that owns the real implementation should write and maintain a fake
+- A system under test shouldn't be able to tell whether it is interacting with a real implementation or a fake. 
+- It requires maintenance
+  - The fake should be implemented in the root level to reduce repeated code (e.g. a fake for database API rather than for each class that calls the database API)
+  - If the implementation needs to be duplicated across multiple languages, a solution is to create a single fake service and have test configure to send request to this fake service
+- Fidelity - how closely the behavior of a fake matches the behavior of the real implementation
+  - The fake must have perfect fidelity to the real implementation, but only from the perspective of the test
+  - Example: 
+    - If an item is successfully saved when ID does not exist but produced an error when the ID already exists, the fake must conform to the same behaviour
+    - A fake database won't have fidelity in term of hard drive storage, it won't have the same hash value for the database, it won't have the same latency and resource consumption
+  - Best to have fake to fail for unsupported behavior
+- Fakes should be tested to ensure that the behavior don't diverge over time as the real implementation evolves
+  - The owner of the fake should test against the API's public interface and running those test against both the real implementation and the fake (known as contract tests) 
 
+### Stubbing
+Stubbing is a way for a test to hardcode behavior for a function that otherwise has no behavior on its own.
 
+Example: Simulate a response from a credit card transaction
+
+Con:
+- Tests become unclear, it can be hard to understand if you are not familiar with the implementation
+- Tests become brittle, stubbing leaks implementation details of your code into the test
+- Tests become less effective, there is no way to store state using stubbing, and hardcore logic is duplication of the details of API logic
+
+Trait:
+- A test typically should stub out only a small number of functions
+- Can be helpful to retuen values or errors that might not be possible to trigger from a real implementation or fake
+- Each stubbed function should have a direct relationship with a test's assertion
+
+### Interaction Testing
+Interaction testing is a way of validate how a function is called without actually calling the implementation of the function.
+
+It is preferred to test code through state testing. (e.g. Call the system under test and validate that either the correct value was returned or some other states of the system under test was properly changed.)
+
+Con:
+- Interaction testing can't tell if the system under test is working properly, it only validate that certain functions are called as expected
+- It utilizes the implementation details of the system under test
+
+Trait:
+- Useful when you are unable to use a real implementation or a fake, but you want to validate that certain functions are called
+- Useful when the differences in the number of order of calls would cause undesired behavior (e.g. when testing caching)
+
+Best practices
+- Prefer to perform interaction testing only for state-changing functions
+- Avoid overspecification
 
 
 # Chapter 14: Larger Testing
