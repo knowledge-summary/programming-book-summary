@@ -937,11 +937,13 @@ Integrate static analysis with Integrated Development Environment (IDE).
 
 
 # Chapter 23: Continuous Integration
-Continuous Integration, or CI, is generally defined as “a software development practice where members of a team integrate their work frequently. The fundamental goal of CI is to automatically catch problematic changes as early as possible.
+Continuous Integration, or CI, is generally defined as “a software development practice where members of a team integrate their work frequently and each integration is verified by an automated build to detect integration error as quickly as possible. The fundamental goal of CI is to automatically catch problematic changes as early as possible.
+
+Modern definition: the continuous assembling and testing of our entire complex and rapidly evolving ecosystem.
 
 CI and testing is tightly coupled. From a testing perspective, CI is a paradigm to inform the following
 - Which test to run in development/release workflow
-- Compose system under test (SUT)
+- Compose system under test (SUT), balancing concerns like fidelity and setup costs
 
 ## CI Concepts
 Life of a code change
@@ -959,7 +961,7 @@ Experiments and feature flags are extremely powerful feedback loops. They reduce
 ### Automation
 - Continuous Build (CB) - integrates the latest code changes at head and runs an automated build and test. Introduce two heads, true head and green head (verified by CB)
 - Continuous Delivery (CD) - a continuous assembling of release candidates, followed by the promotion and testing of those candidates throughout a series of environments—sometimes reaching production and sometimes not.
-- Contiuous Testing
+- Continuous Testing
   - Pre-submit: Fast and reliable ones
   - Release-candidate testing
 
@@ -967,15 +969,19 @@ Any static configuration you do have should be promoted as part of the release c
 
 Release candidate (RC): A cohesive, deployable unit created by an automated process, assembled of code, configuration, and other dependencies that have passed the continuous build.
 
-Using containers such as Docker helps enforce consistency of an RC between environments, from local development onward. Similarly, using orchestration tools like Kubernetes (or in our case, usually Borg), helps enforce consistency between deployments.
+As an RC progresses through environments, its artifact (e.g. binaries, containers) ideally should not be recompiled or rebuilt. Using containers such as Docker helps enforce consistency of an RC between environments, from local development onward. Similarly, using orchestration tools like Kubernetes (or in our case, usually Borg), helps enforce consistency between deployments.
 
 Testing on only pre-submit is too expensive.
+
+Mid-air collision: Two changes that touch completely different files cause test to fail.
 
 Benefits of running release-candidate testing, even if it is the same suite that CB ran against the code on post-submit
 - As a sanity check
 - For auditability
 - To allow for cherry picks
 - For emergency pushes
+
+Production testing
 
 A well-managed alerting system helps to ensure that your Service-Level Objectives (SLOs) are being met. A good CI system helps to ensure that your build is in good shape—the code compiles, tests pass, and you could deploy a new release if you needed to. 
 
