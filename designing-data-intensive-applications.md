@@ -391,7 +391,11 @@ type(namerica, continent).
 ```
 
 # Chapter 3. Storage And Retrieval
+A database needs to do two things: store data and retrieve data
 
+log-structured storage engine
+
+page-oriented storage engines such as B-trees
 
 
 # Chapter 4. Encoding And Evolution
