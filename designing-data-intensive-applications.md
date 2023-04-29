@@ -397,6 +397,20 @@ log-structured storage engine
 
 page-oriented storage engines such as B-trees
 
+What database needs to deal with
+- concurrency control
+- reclaiming disk space
+- handling error and partially written records
+
+General definition of log: an append-only sequence of records (doesn't have to be human-readable)
+
+The simplest database system - a key value pair
+- Pro: write is append which is fast
+- Con: read is O(n)
+
+An *index* is an additional structure that is derived from the primary data. Well-chosen indexes speed up read queries, but every index slows down writes. This is an important trade-off in storage systems.
+
+Database don't usually index everything by default, but require the application developer to choose indexes manually, using knowledge of the application's typical query pattern.
 
 # Chapter 4. Encoding And Evolution
 
