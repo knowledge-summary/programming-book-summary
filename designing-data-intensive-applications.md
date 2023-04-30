@@ -18,6 +18,8 @@
     - [Triple Store](#triple-store)
     - [Datalog](#datalog)
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
+  - [Hash Indexes (key-value store)](#hash-indexes-key-value-store)
+  - [SSTables and LSM-Trees](#sstables-and-lsm-trees)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
 - [Part 2: Distributed Data](#part-2-distributed-data)
 - [Chapter 5. Replica](#chapter-5-replica)
@@ -411,6 +413,38 @@ The simplest database system - a key value pair
 An *index* is an additional structure that is derived from the primary data. Well-chosen indexes speed up read queries, but every index slows down writes. This is an important trade-off in storage systems.
 
 Database don't usually index everything by default, but require the application developer to choose indexes manually, using knowledge of the application's typical query pattern.
+
+## Hash Indexes (key-value store)
+Hash indexes keep an in-memory hash map where every key is mapped to a byte offset in the data file.
+
+To avoid running out of disk space, it break the logs into segments of a certain size by closing a segment file when it reaches a certain size, and making subsequent writes to a new segment file. Then, perform compaction on these segments.
+
+Compaction - throwing away duplicate keys in the log, and keeping only the most recent update for each key. (can be applied after merging several segments)
+
+A search is done by checking the latest segment hash map, if the key is not present, check the second-most recent segment, and so on.
+
+Hash indexes is used by [Bitcask](https://github.com/basho/bitcask), the default storage engine of Riak.
+
+Well suited from situations where the value for each key is updated frequently, and there are not too many distinct keys.
+
+Design considerations
+- File format - binary format for efficiency
+- Deleting record - append a special deletion record (also called *tombstone*) to the data file, the merging process discard any previous value for the deleted key
+- Crash recovery - storing snapshots of each segment's hash map on disk (e.g. when server restarts)
+- Partially written record - Include checksums to detect and ignore corrupted part of the log
+- Concurrency control - Only one write thread, can be read concurrently by multiple thread
+
+Pro
+- Sequential write operations are generally faster
+- Concurrency and crash recovery is simpler
+- Merging old segments avoids the problem of data files getting fragmented over time
+
+Con
+- If there is a lot of keys, the hash table might not be able to fit into memory. Storing hash table in disk requires a lot of random access I/O which is expensive
+- Range queries is not efficient since keys in hash map are indepedent
+
+## SSTables and LSM-Trees
+
 
 # Chapter 4. Encoding And Evolution
 
