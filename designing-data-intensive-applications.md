@@ -444,6 +444,19 @@ Con
 - Range queries is not efficient since keys in hash map are indepedent
 
 ## SSTables and LSM-Trees
+Sorted String Table (SSTable) require that the sequence of key-value pairs is sorted by key
+
+Pro
+- Merging segment is simple and efficient
+- No longer need to keep an index for all the keys in memory, can use a sparse in-memory index (e.g. one key for every few kilobytes of segment files)
+- Possible to group records into a block and compress it before writing it to disk. Each entry of the sparse in-memory index then points at the start of a compressed block, which save space and reduce I/O bandwidth use
+
+1. Write into an in-memory balanced tree data structure (e.g. red-black tree, AVL tree), called *memtable*
+2. When the memtable get bigger than some thresholds (e.g. a few megabytes), write it out to disk as an SSTable file
+3. When reading, first try to find the key in the memtable, then in the most recent on-disk segment of the database, and so on
+4. Run merging and compaction in the background from time to time to discard overwritten and deleted value
+
+To handle the situation when the recent entry is lose during crash, store an immediate appended log. This helps to restore the memtable after a crash
 
 
 # Chapter 4. Encoding And Evolution
