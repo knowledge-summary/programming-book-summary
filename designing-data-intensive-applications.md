@@ -458,6 +458,28 @@ Pro
 
 To handle the situation when the recent entry is lose during crash, store an immediate appended log. This helps to restore the memtable after a crash
 
+The terms SSTable and memtable are introduced by Google's Bigtable [paper](https://research.google/pubs/pub27898/).
+
+Originally this indexing structure was described by Patrick O'Neil et al. under the name Log-Strcutured Merge-Tree (or LSM-Tree) in the [paper](https://www.cs.umb.edu/~poneil/lsmtree.pdf). Storage engines that based on this principle of merging and compacting sorted files are often called LSM storage engines.
+
+Methods of performance optimization
+1. Use *Bloom filter*, a memory-efficient data structure for approximating the content of a set. It can tell you if a key does not appear in the database and reduce unnecessary disk reads.
+2. Size-tiered compaction - newer and smaller SSTables are successively merged into older and larger SSTables
+3. Level compaction - key range is split up into smaller SSTables and older data is moved into separate levels, which allows the compaction to proceed more incrementally and use less disk space
+
+List of storage engine libraries that use the concepts of SSTables and LSM-Trees
+| Library Name | Usage | Remark | Strategy to determine the order and timing of how SSTables are compacted and merged |
+| -- | -- | -- | -- |
+| [LevelDB](https://github.com/google/leveldb/blob/main/doc/impl.md) (used in Riak as an alternative of Bitcask) | key-value storage engine libraries that are designed to be embedded into other applications |  | leveled compaction |
+| [RocksDB](https://rocksdb.blogspot.com/2013/11/the-history-of-rocksdb.html) | key-value storage engine libraries that are designed to be embedded into other applications |  | leveled compaction |
+| Cassandra |  |  | Both leveled compaction and size-tiered |
+| [Hbase](https://blog.cloudera.com/apache-hbase-i-o-hfile/) |  |  | size-tiered |
+| Lucene | an indexing engine for full-text search used by Elasticsearch and Solr | use similar method called term dictionary (key: a word (a term), value: a list of IDs of all the documents that contain the word (the postings list) | 
+
+## B-Trees
+B-tree is the most widely used indexing structure. It remains the standard index implementation in almost all relational databases, and many nonrelational databases use them too.
+
+
 
 # Chapter 4. Encoding And Evolution
 
