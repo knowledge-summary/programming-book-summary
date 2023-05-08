@@ -20,6 +20,7 @@
 - [Chapter 3. Storage And Retrieval](#chapter-3-storage-and-retrieval)
   - [Hash Indexes (key-value store)](#hash-indexes-key-value-store)
   - [SSTables and LSM-Trees](#sstables-and-lsm-trees)
+  - [B-Trees](#b-trees)
 - [Chapter 4. Encoding And Evolution](#chapter-4-encoding-and-evolution)
 - [Part 2: Distributed Data](#part-2-distributed-data)
 - [Chapter 5. Replica](#chapter-5-replica)
@@ -474,11 +475,24 @@ List of storage engine libraries that use the concepts of SSTables and LSM-Trees
 | [RocksDB](https://rocksdb.blogspot.com/2013/11/the-history-of-rocksdb.html) | key-value storage engine libraries that are designed to be embedded into other applications |  | leveled compaction |
 | Cassandra |  |  | Both leveled compaction and size-tiered |
 | [Hbase](https://blog.cloudera.com/apache-hbase-i-o-hfile/) |  |  | size-tiered |
-| Lucene | an indexing engine for full-text search used by Elasticsearch and Solr | use similar method called term dictionary (key: a word (a term), value: a list of IDs of all the documents that contain the word (the postings list) | 
+| Lucene | an indexing engine for full-text search used by Elasticsearch and Solr | use similar method called term dictionary (key: a word (a term), value: a list of IDs of all the documents that contain the word (the postings list)) | 
 
 ## B-Trees
 B-tree is the most widely used indexing structure. It remains the standard index implementation in almost all relational databases, and many nonrelational databases use them too.
 
+Same as SSTables, B-trees key key-value pairs sorted by key.
+
+B-trees break the database down into fixed-sized block or pages, and read or write one page at a time. This design corresponds more closely to the underlying hardware, as disks are also arranged in fixed-size blocks.
+
+Each page can be identified using an address or location, which allows one page to refer to another, similar to a pointer, but on disk instead of memory. We can use these page references to construct a tree of pages.
+
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781491903063/files/assets/ddia_0306.png)
+
+One page is designated as the root of the B-tree, which is the location to start when looking up a key in the index.
+
+The keys between the references indicate where the boundaries between those ranges lie. Eventually, we get down to a page containing individual keys (a *leaf page*), which either contain the value for each key inline or contain references to the pages where the values can be found.
+
+The number of references to child pages in one page of the B-tree is called the *branching factor*. In practice, it depends on the space required to store the page references and is typically several hundred.
 
 
 # Chapter 4. Encoding And Evolution
