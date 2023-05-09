@@ -459,6 +459,7 @@ Different types of code reviews
 - Bug fixes and rollbacks
 - Refactorings and large-scale changes
 
+
 # Chapter 10: Documentation
 The key to making it easier for engineer to write quality documentation is to introduce processes and tools that scale with the organization and that tie into their existing workflow.
 
@@ -513,7 +514,6 @@ Consideration 3:
 - Provider (such as member of proejct team)
 
 Keep your documentation short. Write descriptively enough to explain complex topics to people unfamiliar with the topic, but don’t lose or annoy experts. Can have separate documentation for different audiences.
-
 
 ## Types of Documentation
 It is important to know the different types of documentation, and to not mix types. A document should have a singular purpose, and stick to it.
@@ -834,7 +834,7 @@ It may be sensible to create a release branch that represents the exact code tha
 
 Google have a OWNERS file that lists the username of engineers allowing to commits within the subtree of the repo.
 
-Developers must never have a choice of “What version of this component should I depend upon?”
+One-Version Rule - Developers must never have a choice of “What version of this component should I depend upon?”
 
 Dependency across time in any form is far more costly and complicated than code that is time invariant. Internally, Google production services make relatively few promises of that form. We also benefit greatly from a cap on potential version skew imposed by our “build horizon”: every job in production needs to be rebuilt and redeployed every six months, maximum.
 

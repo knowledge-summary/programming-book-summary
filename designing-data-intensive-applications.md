@@ -452,6 +452,7 @@ Pro
 - No longer need to keep an index for all the keys in memory, can use a sparse in-memory index (e.g. one key for every few kilobytes of segment files)
 - Possible to group records into a block and compress it before writing it to disk. Each entry of the sparse in-memory index then points at the start of a compressed block, which save space and reduce I/O bandwidth use
 
+Implementation
 1. Write into an in-memory balanced tree data structure (e.g. red-black tree, AVL tree), called *memtable*
 2. When the memtable get bigger than some thresholds (e.g. a few megabytes), write it out to disk as an SSTable file
 3. When reading, first try to find the key in the memtable, then in the most recent on-disk segment of the database, and so on
@@ -493,6 +494,14 @@ One page is designated as the root of the B-tree, which is the location to start
 The keys between the references indicate where the boundaries between those ranges lie. Eventually, we get down to a page containing individual keys (a *leaf page*), which either contain the value for each key inline or contain references to the pages where the values can be found.
 
 The number of references to child pages in one page of the B-tree is called the *branching factor*. In practice, it depends on the space required to store the page references and is typically several hundred.
+
+Implementation
+1. To update the value of an existing key or create a new value, find the leaf page containing the value or range encompasses the new key
+2. If there isn't enough space, split the page into two half-full pages, and the parent page is updated to account for the new subdivision of key ranges.
+
+This algorithm ensures the the tree remained balanced.
+
+> A four-level tree of 4 KB pages with a branching factor of 500 can store up to 250 TB
 
 
 # Chapter 4. Encoding And Evolution
