@@ -503,6 +503,14 @@ This algorithm ensures the the tree remained balanced.
 
 > A four-level tree of 4 KB pages with a branching factor of 500 can store up to 250 TB
 
+The basic underlying write operation of a B-tree is to overwrite a page on **disk** with new data.
+
+Some operations require several different pages to be overwritten (e.g. insertion which cause page split --> Overwrite the 2 split pages, and overwrite the parent page). This is a dangerous operation, because if the database crashes halfway, you get corrupted index.
+
+Similar to SSTable, for B-tree implementation to be resilient to crashes, it is common to include an additional data structure on disk, a *write-ahead log* (WAL, also known as *redo log*).
+
+Write-ahead log is an append-only file which every B-tree modification must be written before it can be applied to the pages of the tree itself. It helps with restoring B-tree back to a consistent state when crashes happen.
+
 
 # Chapter 4. Encoding And Evolution
 
