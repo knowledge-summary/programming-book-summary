@@ -488,7 +488,7 @@ Can also happen to regression, e.g. strongly left-skewed or right-skewed.
 
 Class imbalance makes ML difficult for the following three reasons.
 1. Insufficient signal for your model to learn to detect the minority class
-2. Make it easier for the modelto stuck in nonoptimal solution (e.g. model learn to predict normal as it is 99% accuracy)
+2. Make it easier for the model to stuck in nonoptimal solution (e.g. model learn to predict normal as it is 99% accuracy)
 3. Asymmetric costs of error (rare class costs more), and the model need to be able to handle it
 
 Class imbalance is a norm in real-world settings. (e.g. fraud detection, disease screening, resume screening, object detection)
@@ -498,8 +498,23 @@ Causes of class imbalance
 2. Biases during the sampling process (e.g. spam email are filtered before reaching inbox, getting from inbox might result in limited percentage of spam label)
 3. Labeling error (e.g. labeler not aware of a label and hence only label the other labels)
 
+Sensitivity to imbalance increases with the complexity of the problem
+
 Solutions to handle class imbalance
-1. 
+1. Choosing the right metrics for your problem
+2. Data levels model, which means changing the data distribution to make it less imbalanced
+3. Algorithm-level methods, which means changing your learning method to make it more robust to class imbalance
+
+Use precision-recall curve, which gives a more informative view of an algorithm's performance on tasks with heavy class imbalance.
+
+Resampling
+- Oversampling 
+  - SMOTE (synthetic minority oversampling technique) - synthesizes novel samples of the minority class through sampling convex combinations of existing data points within the minority class
+- Undersampling 
+  - Tomek Link - find pair of samples from opposite classes that are close in proximity and remove the sample of the majoruty class in each pair
+
+
+
 
 
 
