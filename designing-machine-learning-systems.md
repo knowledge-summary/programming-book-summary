@@ -45,6 +45,8 @@
       - [Transfer learning](#transfer-learning)
       - [Active learning](#active-learning)
   - [Class Imbalance](#class-imbalance)
+    - [Data-level methods: Resampling](#data-level-methods-resampling)
+    - [Algorithm-level methods](#algorithm-level-methods)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -502,16 +504,33 @@ Sensitivity to imbalance increases with the complexity of the problem
 
 Solutions to handle class imbalance
 1. Choosing the right metrics for your problem
-2. Data levels model, which means changing the data distribution to make it less imbalanced
+2. Data-level model, which means changing the data distribution to make it less imbalanced
 3. Algorithm-level methods, which means changing your learning method to make it more robust to class imbalance
 
 Use precision-recall curve, which gives a more informative view of an algorithm's performance on tasks with heavy class imbalance.
 
-Resampling
+### Data-level methods: Resampling
 - Oversampling 
-  - SMOTE (synthetic minority oversampling technique) - synthesizes novel samples of the minority class through sampling convex combinations of existing data points within the minority class
+  - **SMOTE (synthetic minority oversampling technique)** - synthesizes novel samples of the minority class through sampling convex combinations of existing data points within the minority class
 - Undersampling 
-  - Tomek Link - find pair of samples from opposite classes that are close in proximity and remove the sample of the majoruty class in each pair
+  - **Tomek Link** - find pair of samples from opposite classes that are close in proximity and remove the sample of the majority class in each pair
+
+Other methods - Near-Miss, one-sided selection, two-phase learning, dynamic sampling
+
+Two-phase leaarning - Randomly undersampling large classes until each class only have N instances, and then fine-tune your model on the original data
+
+Dynamic sampling - Oversampling the low-performing classes and undersampling the high-performing classes during the training process
+
+### Algorithm-level methods
+Alter the algorithm to make it more robust to class imbalance
+
+Adjustment to loss function, give important instance higher weight
+- Cost-sensitive learning
+- Class-balanced loss
+- Focal loss
+
+
+
 
 
 
