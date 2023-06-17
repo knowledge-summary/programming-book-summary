@@ -519,14 +519,14 @@ Keep your documentation short. Write descriptively enough to explain complex top
 It is important to know the different types of documentation, and to not mix types. A document should have a singular purpose, and stick to it.
 
 Main types of documentation:
-- Reference documentation (anything that document the usage of code within the codebase)
+- **Reference documentation** (anything that document the usage of code within the codebase)
   - File comments
   - Class comments
   - Function comments (starts with declarative verb. A single sentence can be enough, Google didn't find it necessary to have boilerplate session like 'Returns', 'Throws')
-- Design documents (require approval before starting work on any major work, cover aspects such as security implications, internationalization, storage requirements, privacy concerns. A good design documents cover goal, implementation strategy and key design decisions. Can be used to measure whether a project achieve its goals)
-- Tutorials (each step should be an action that the user need to take)
-- Conceptual documentation (mean to augment instead of replace reference documentation)
-- Landing pages (serve as a traffic cop)
+- **Design documents** (require approval before starting work on any major work, cover aspects such as security implications, internationalization, storage requirements, privacy concerns. A good design documents cover goal, implementation strategy and key design decisions. Can be used to measure whether a project achieve its goals)
+- **Tutorials** (each step should be an action that the user need to take)
+- **Conceptual documentation** (for code that require deeper explanations or insights which reference documentations are not able to cover, e.g. library overview of API, life cycle of data in the server, mean to augment instead of replace reference documentation)
+- **Landing pages** (serve as a traffic cop, include only links to other page for more information)
 
 ## Review a Documentation
 A technical document benefits from three different types of reviews

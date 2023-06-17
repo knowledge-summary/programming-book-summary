@@ -47,6 +47,10 @@
   - [Class Imbalance](#class-imbalance)
     - [Data-level methods: Resampling](#data-level-methods-resampling)
     - [Algorithm-level methods](#algorithm-level-methods)
+  - [Data Augmentation](#data-augmentation)
+    - [Simple label-preserving transformations](#simple-label-preserving-transformations)
+    - [Pertubation](#pertubation)
+    - [Data Synthesis](#data-synthesis)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
@@ -517,6 +521,8 @@ Use precision-recall curve, which gives a more informative view of an algorithm'
 
 Other methods - Near-Miss, one-sided selection, two-phase learning, dynamic sampling
 
+The methods above only work well for low-dimensional data
+
 Two-phase leaarning - Randomly undersampling large classes until each class only have N instances, and then fine-tune your model on the original data
 
 Dynamic sampling - Oversampling the low-performing classes and undersampling the high-performing classes during the training process
@@ -525,16 +531,46 @@ Dynamic sampling - Oversampling the low-performing classes and undersampling the
 Alter the algorithm to make it more robust to class imbalance
 
 Adjustment to loss function, give important instance higher weight
-- Cost-sensitive learning
-- Class-balanced loss
-- Focal loss
+| Method | Description | Con |
+| -- | -- | -- |
+| Cost-sensitive learning | Using a cost matrix to specify cost `C_ij` (e.g. false positive is twice costly than false negative) | Need to manually define the cost matrix |
+| Class-balanced loss | Make the weight of each class inversely proportional to the number of samples in that class. A more sophisticated version of this loss can take into the overlap among existing samples, such as class-balanced loss based on effective number of samples | - |
+| Focal loss | Assign a higher weight for samples that has a lower probability of being right |
+
+Emsembles have shown to help with the claas imbalance problem too
 
 
+## Data Augmentation
+Data Augmentation is a family of technique to increase the amount of training data. It is traditionally used for tasks with limited data. In recent year, it is shown to be useful even when there are a lot of data, to make the models more robust to noise and even adversarial attack.
 
+### Simple label-preserving transformations
+- Computer Vision - Randomly modify an image whole preserving its label. These include cropping, flipping, rotating, inverting (horizontally or vertically), erasing part of the image, etc
+- Natural Language Processing - Randomly replace a word with a similar word (e.g. happy -> glad), assuming that this replacement wouldn't change the meaning or the sentiment of the sentence
 
+### Pertubation
+Using deceptive data to trick a neural network into making wrong predictions is called *adversarial attack*. Adding noise to samples is a common technique to create adversarial sample
 
+Adding noisy samples to training data can help models recognize weak spots in their learned decision boundary and improve their performance. Noisy samples can be created by either
+- adding random noise
+- search strategy
 
+This type of augmentation is called *adversarial augmentation*
 
+*DeepFool* - An algorithm that find the minimum possible injection needed to cause a misclassification with high confidence
+
+Adversarial augmentation is less common in NLP, as adding random characters to a random sentence will make it gibberish. 
+
+However, it can be used to make models more robust. E.g. BERT, where the model randomly choose 15% of all tokens in each sequence and replace 10% of the chosen tokens with random words. (which means 1.5% of all tokens might result in non-sensical meaning). Their [study](https://aclanthology.org/N19-1423.pdf) shows that a small fraction of random replacement gives the model a small performance boost.
+
+### Data Synthesis
+- Natual Language Processing - templates (e.g. `Find me a [CUISINE] resturant within [NUMBER] miles of [LOCATION]`)
+- Computer Vision - Mixup (Combine existing examples with discrete labels to generate continuous labels)
+
+Mixup improves model generalization, reduces their memorization of corrupt labels, increase their robustness to adversarial examples, and stabilizes the training of generative adversarial networks
+
+Using neural network to synthesize training data (e.g. CycleGAN)
+
+Resource: [A Survey on Image Data Augmentation for Deep Learning](https://journalofbigdata.springeropen.com/articles/10.1186/s40537-019-0197-0)
 
 
 # Chapter 5: Feature Engineering
