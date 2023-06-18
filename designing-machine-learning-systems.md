@@ -52,6 +52,11 @@
     - [Pertubation](#pertubation)
     - [Data Synthesis](#data-synthesis)
 - [Chapter 5: Feature Engineering](#chapter-5-feature-engineering)
+  - [Common Feature Engineering Operations](#common-feature-engineering-operations)
+    - [Handling Missing Values](#handling-missing-values)
+    - [Scaling](#scaling)
+    - [Discretization](#discretization)
+    - [Encoding Categorical Features](#encoding-categorical-features)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
     - [Six tips for Model Selection](#six-tips-for-model-selection)
@@ -164,12 +169,17 @@ Changing the way you frame the problem might make your problem significantly har
   - Binary
   - Multiclass (if number of classes is large, hierarchical classification might be useful)
   - Multilabel (usually more challenging for company)
+    - Approach 1: Treat it as multilabel classification problems
+    - Approach 2: Turn it into a set of binary classification problems
 
 ### Decoupling objectives
 When there are multiple objective (eg: improve quality, improve engagement), one can
 1. (not so ideal) Combine the 2 lossess into one loss and train a model to minimize the loss
 2. Train two different models, each optimized for one objective, and combine the model's output.
 
+
+Data science hierarchy of needs
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0207.png)
 
 # Chapter 3: Data Engineering Fundamentals
 
@@ -208,8 +218,8 @@ Text is readable but use more space, vice versa for binary format.
 Data is organized into relations; each relations is a set of tuples.
 
 It is often desirable for relations to be normalized. **Data normalization** can follow normal forms such as first normal form (1NF), second normal form (2NF), etc.  
-**Pro**: helps to reduce redundancy and improve data integrity.  
-**Con**: Data is spread across multiple relations. Joining can be expensive for large tables.  
+- **Pro**: helps to reduce redundancy and improve data integrity.  
+- **Con**: Data is spread across multiple relations. Joining can be expensive for large tables.  
 
 Most popular query language - SQL
 - Declarative language
@@ -535,7 +545,7 @@ Adjustment to loss function, give important instance higher weight
 | -- | -- | -- |
 | Cost-sensitive learning | Using a cost matrix to specify cost `C_ij` (e.g. false positive is twice costly than false negative) | Need to manually define the cost matrix |
 | Class-balanced loss | Make the weight of each class inversely proportional to the number of samples in that class. A more sophisticated version of this loss can take into the overlap among existing samples, such as class-balanced loss based on effective number of samples | - |
-| Focal loss | Assign a higher weight for samples that has a lower probability of being right |
+| Focal loss | Assign a higher weight for samples that has a lower probability of being right | - |
 
 Emsembles have shown to help with the claas imbalance problem too
 
@@ -565,15 +575,57 @@ However, it can be used to make models more robust. E.g. BERT, where the model r
 ### Data Synthesis
 - Natual Language Processing - templates (e.g. `Find me a [CUISINE] resturant within [NUMBER] miles of [LOCATION]`)
 - Computer Vision - Mixup (Combine existing examples with discrete labels to generate continuous labels)
+- Using neural network to synthesize training data (e.g. CycleGAN)
 
 Mixup improves model generalization, reduces their memorization of corrupt labels, increase their robustness to adversarial examples, and stabilizes the training of generative adversarial networks
-
-Using neural network to synthesize training data (e.g. CycleGAN)
 
 Resource: [A Survey on Image Data Augmentation for Deep Learning](https://journalofbigdata.springeropen.com/articles/10.1186/s40537-019-0197-0)
 
 
 # Chapter 5: Feature Engineering
+There are many possible features to use in your model. The process of choosing what information to use and extract them into usable format is **feature engineering**.
+
+Traditionally, for Natural Language Processing (NLP), you would have to manually apply classical text processing techniques (e.g. lemmatization, stop-word removal, lowercase, n-gram, etc). 
+
+With the rise of deep learning, you can split raw text into words and create vocabulary out of the word, and let deep learning model to extract the useful feature. Deep learning is sometimes called feature engineering.
+
+However, as of this writing, the majority of ML applications in prodcution isn't deep learning. Also, an ML system will likely need data beyond just text and images and hence require engineered features (e.g. number of upvotes/downvotes, characteristics of user, popularity of thread)
+
+## Common Feature Engineering Operations
+### Handling Missing Values
+Types of missing values
+- Missing not at random (MNAR) - the reason of is because of the value itself (e.g. respondents with higher income didn't disclose their income)
+- Missing at random (MAR) - the reason of missing is not due to the value itself, but due to another observed variable (e.g. people with gender A don't like disclosing their age)
+- Missing completely at random (MCAR) - no pattern
+
+Technique to handle missing values
+| Name | Technique | Pro | Con |
+| -- | -- | -- | -- |
+| **Deletion** | <li>**Column deletion**</li> <li>**Row deletion** - Work when the missing values is completely at random and the number of examples with missing values is small (e.g. 0.1% instead of 10%)</li> | Easier to do | <li>Might remove important information and reduce the accuracy of the model (e.g. Marital status might be highly correlated with buying houses, removing missing values not at random can remove important implicit information)</li><li>Create biases</li> |
+| **Imputation** | Fill missing values with<li>default (e.g. empty string `''`)</li> <li>mean, median, mode</li> | Work well in many cases | <li>Filling missing values with possible values makes it hard to distinguish between missing data and valid data with default value</li> <li>Injecting biases and add noises</li> <li>Potential data leakage</li> |
+
+### Scaling
+**Feature scaling** - scale feature to similar ranges
+
+- Scale to [0, 1]
+- Scale to custom range
+- Standardization
+- Log transformation (for skewed distribution)
+
+Scaling is a common source of data leakage, and it requires global statistics (e.g. min, max, mean) which might change significantly in the future and hence it is important to retrain frequently.
+
+### Discretization
+Rarely help in practice
+
+Discretization (also called quantization or binning) is a process of turning a continuous feature into a discrete feature.
+
+Pro: Supposed to be helpful with limited training data
+Con: Introduce discontinuities at the category boundaries, choosing boundaries can be non-trivial
+
+### Encoding Categorical Features
+
+
+
 
 
 
