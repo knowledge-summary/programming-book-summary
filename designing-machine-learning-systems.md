@@ -57,6 +57,8 @@
     - [Scaling](#scaling)
     - [Discretization](#discretization)
     - [Encoding Categorical Features](#encoding-categorical-features)
+    - [Feature Crossing](#feature-crossing)
+    - [Discrete and Continuous Positional Embeddings](#discrete-and-continuous-positional-embeddings)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
     - [Six tips for Model Selection](#six-tips-for-model-selection)
@@ -623,6 +625,27 @@ Pro: Supposed to be helpful with limited training data
 Con: Introduce discontinuities at the category boundaries, choosing boundaries can be non-trivial
 
 ### Encoding Categorical Features
+Categories can change (e.g. new brand, new user, which might not be appropriate to classify as `unknown` due to the variety of new objects)
+
+*Hashing trick* - use a hashing function to generate a hashed value of each category, define a hash space which fix the number of encoded values for a feature in advance (e.g. hash space of `2^18 = 262,144` possible hashed values)
+
+Hashed functions can have the problem of collision. The impact is not that bad.
+
+Locality-sensitive hashing function - similar categories are hashed into values close to each other
+
+### Feature Crossing
+*Feature Crossing* is the technique to combine two or more features to generate new features. This technique is useful to model the nonlinear relationship between features. 
+
+- It is essential for models that can't learn or bad at learning nonlinear relationship (e.g. linear regression, logistics regression)
+- It is less important in neural network, can be helpful to speed up the learning of nonlinear relationship
+
+DeepFM and xDeepFM are the family of models that have successfully leveraged explicit feature interactions for recommender systems and click-through-rate prediction.
+
+Con:
+- Can make the feature space blow up
+- Might overfit the models
+
+### Discrete and Continuous Positional Embeddings
 
 
 
