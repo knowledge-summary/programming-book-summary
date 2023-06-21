@@ -59,6 +59,8 @@
     - [Encoding Categorical Features](#encoding-categorical-features)
     - [Feature Crossing](#feature-crossing)
     - [Discrete and Continuous Positional Embeddings](#discrete-and-continuous-positional-embeddings)
+  - [Data Leakage](#data-leakage)
+    - [Reason of leakage](#reason-of-leakage)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
     - [Six tips for Model Selection](#six-tips-for-model-selection)
@@ -646,7 +648,39 @@ Con:
 - Might overfit the models
 
 ### Discrete and Continuous Positional Embeddings
+For model like a transformer, words are processed in parallel, as compared to recurrent neural network. Therefore, words' position need to be explicitly inputted.
 
+Absolute position (e.g. 1, 2, 3, ..., n) does not work, as the number can get very big. Scaling doesn't work, as the numbers can get too small.
+
+Position embeddings can be fixed and pre-defined with function, usually sine and cosine. Fixed positional embedding is a special case known as Fourier features.
+![](https://i.imgur.com/Psd4fLr.png)
+
+The embedding size of positional embeddings usually have the same as the embedding size for words so that they can be summed and become the final embeddings of the words.
+
+## Data Leakage
+Data leakage refers to the phenomenon when a form of the label "leak" into the set of features used for making predictions, and this same information is not available during inference
+
+This will cause the models to perform well during evaluation but failed to be usable in actual production settings.
+
+Example: serious patient might do MRI with more advanced machine, and hence the model pick up the different of machine instead of the seriousness of the disease
+
+The data leakage might not be obvious
+
+### Reason of leakage
+| Reason | Solution |
+| -- | -- |
+| Splitting time-correlated data randomly instead of by time | Split by time instead of randomly |
+| Scaling before splitting | Splitting before scaling |
+| Fill in missing data with statistics from the test split | Use only statistics from train split |
+| Poor handling of data duplication before splitting | Check for duplicate before sampling, perform oversampling after splitting |
+| Group leakage (e.g. patient with 2 CT scans that are a week apart, one of them become test data) | Understand how the data was generated |
+| Leakage from data generation process | Understand how the data is collected and processed, normalize data from different sources, incorporate subject matter expert |
+
+Ways to detect data leakage
+- Measure predictive power of features or set of features and be skeptical of high correlation
+- Do ablation studies to measure how important a feature is
+- Keep an eye on new features added to the model
+- Be careful with test split and only use it to report a model's final performance
 
 
 
