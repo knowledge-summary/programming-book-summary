@@ -61,6 +61,7 @@
     - [Discrete and Continuous Positional Embeddings](#discrete-and-continuous-positional-embeddings)
   - [Data Leakage](#data-leakage)
     - [Reason of leakage](#reason-of-leakage)
+  - [Engineering Good Features](#engineering-good-features)
 - [Chapter 6: Model Development and Offline Evaluation](#chapter-6-model-development-and-offline-evaluation)
   - [Evaluating ML Models](#evaluating-ml-models)
     - [Six tips for Model Selection](#six-tips-for-model-selection)
@@ -682,7 +683,17 @@ Ways to detect data leakage
 - Keep an eye on new features added to the model
 - Be careful with test split and only use it to report a model's final performance
 
+## Engineering Good Features
+More features doesn't always mean better model performance.
+- More opportunities for data leakage
+- More likely to overfit
+- Increase memory requirement
+- Increase latency
+- Useless features become technical debts
 
+2 factors to consider when evaluating whether a feature is good
+- Feature importance - measured by how much that model’s performance deteriorates if that feature or a set of features containing that feature is removed from the model (e.g. XGBoost build-in feature importance, SHAP(SHapley Additive exPlanations), [InterpretML](https://github.com/interpretml/interpret))
+- Feature generalization
 
 
 
