@@ -350,7 +350,6 @@ Both can be highly scalable and fully distibuted.
 Tools for streaming data: Apache Flink, KSQL, Spark Streaming
 
 
-
 # Chapter 4: Training Data
 Common challenges in creating training data
 - Label multiplicity problem
@@ -692,11 +691,13 @@ More features doesn't always mean better model performance.
 - Useless features become technical debts
 
 2 factors to consider when evaluating whether a feature is good
-- Feature importance - measured by how much that model’s performance deteriorates if that feature or a set of features containing that feature is removed from the model (e.g. XGBoost build-in feature importance, SHAP(SHapley Additive exPlanations), [InterpretML](https://github.com/interpretml/interpret))
-- Feature generalization
-
-
-
+- **Feature importance** 
+  - measured by how much that model’s performance deteriorates if that feature or a set of features containing that feature is removed from the model 
+  - E.g. XGBoost build-in feature importance, SHAP(SHapley Additive exPlanations), [InterpretML](https://github.com/interpretml/interpret)
+- **Feature generalization** 
+  - Two aspects to consider with regards to generalization - *feature coverage* and *distribution of feature values*
+    - Feature coverage - percentage of the sample that has values for this feature
+    - Distribution of feature values - if the set of value appear in train and test data is inconsistent, it might be a problem
 
 
 # Chapter 6: Model Development and Offline Evaluation
