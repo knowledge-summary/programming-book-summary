@@ -864,6 +864,24 @@ Tried-and-true debugging techniques by experienced ML engineers
 
 
 # Chapter 7: Model Deployment and Prediction Service
+Production is a spectrum
+
+A quote from Internet - Deploying is easy if you ignore all the hard parts
+
+Hard parts of deployment
+- Make your model available to millions of users with a latency of milliseconds and 99% uptime
+- Setting up the infrastructure so that the right person can be immediately notified when something goes wrong
+- Figure out what went wrong
+- Seamlessly deploy the updates to fix what's wrong
+
+
+Serialization - converting a model into a format that can be used by another application
+
+Online prediction
+
+Batch prediction
+
+
 
 
 
