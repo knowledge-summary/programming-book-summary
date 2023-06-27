@@ -74,6 +74,7 @@
     - [Baselines](#baselines)
     - [Evaluation Methods](#evaluation-methods)
 - [Chapter 7: Model Deployment and Prediction Service](#chapter-7-model-deployment-and-prediction-service)
+  - [Batch Prediction vs Online Prediction](#batch-prediction-vs-online-prediction)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
@@ -875,11 +876,20 @@ Hard parts of deployment
 - Seamlessly deploy the updates to fix what's wrong
 
 
-Serialization - converting a model into a format that can be used by another application
+Serialization - converting a model (model definition and model's parameter values) into a format that can be used by another application (e.g. tensorflow uses `tf.keras.Model.save()`, PyTorch uses `torch.onnx.export()`)
 
-Online prediction
+| Myth | Truth |
+| -- | -- |
+| You only deploy one or two ML models at a time | Companies can have many ML models (e.g. Uber has models for ride demand, driver availability, estimated time for arrival, dynamic pricing, customer churn, etc) |
+| If we don't do anything, model performance remains the same | Software program degrades over time - software rot, bit rot; ML systems - data distribution shifts |
+| You won't need to update your models as much | "How often ~~should~~ can I update my models" is the correct question. ML should learn from DevOps practices. Companies like Weibo, Tik Tok have iteration cycle for updating some of the ML models in 10 minutes |
+| Most ML engineers don't need to worry about scale | Most tech people works in company which likely serving a reasonable number of users |
 
-Batch prediction
+
+## Batch Prediction vs Online Prediction
+*Online prediction* (or *on-demand prediction*, *synchronous prediction*) is when predictions are generated and returned as soon as requests for these predictions arrive (e.g. Google Translate). Traditionally, it is done through RESTful APIs 
+
+*Batch prediction* (or *asynchronous prediction*) is when predictions are generated periodically or whenever triggered (e.g. Netflix's movie recommendations for all of its users every few hours). The predictions are stored somewhere, and retrieved as needed
 
 
 
