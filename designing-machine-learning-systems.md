@@ -75,6 +75,7 @@
     - [Evaluation Methods](#evaluation-methods)
 - [Chapter 7: Model Deployment and Prediction Service](#chapter-7-model-deployment-and-prediction-service)
   - [Batch Prediction vs Online Prediction](#batch-prediction-vs-online-prediction)
+  - [Model Compression](#model-compression)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
@@ -891,6 +892,48 @@ Serialization - converting a model (model definition and model's parameter value
 
 *Batch prediction* (or *asynchronous prediction*) is when predictions are generated periodically or whenever triggered (e.g. Netflix's movie recommendations for all of its users every few hours). The predictions are stored somewhere, and retrieved as needed
 
+Three main mode of predictions
+- Batch prediction that uses batch features
+- Online prediction that uses batch features (e.g. precomputed embedding)
+- Online prediction that uses batch features and streaming features (*streaming prediction*)
+
+Example - an order of DoorDash food delivery require batch features (restaurant mean preparation time) and streaming features (available delivery people, number of existing orders)
+
+It might be helpful to combine different types of prediction. E.g. precompute predictions for popular or larger queries, generate predictions online for less popular or smaller queries
+
+|  | Batch prediction (asynchronous) | Online prediction (synchronous) |
+| -- | -- | -- |
+| Frequency | Periodical, such as every four hours | As soon as requests come |
+| Useful for | Processing accumulated data when you don't need immediate results (such as recommender systems) | When predictions are needed as soon as a data sample is generated (such as fraud detection) |
+| Optimized for | High throughput | Low latency |
+
+Other examples of online prediction - high frequency trading, autonomous vehicles, voice assistants, fingerprint unlocking, fall detection of elderly, fraud detection
+
+Requirements for online predictions
+- A (near) real-time pipeline that can work with incoming data -> extract streaming features (if needed) -> input features into model -> return prediction (e.g. a streaming pipeline with real-time transport and a stream computation engine)
+- A model with acceptable speed of prediction
+
+Example of unifying batch pipeline and streaming pipeline - Google Map 
+- Training using last month data
+- Continuously update prediction as users' trip progress, using features such as average speed of all cars
+
+Unifying batch pipeline and streaming pipeline might be a common cause of bugs
+
+Some companies made major infrastructure overhauls by using a stream processor like Apache Flink. Some use feature store to ensure the feature consistency
+
+## Model Compression
+3 ways to reduce inference latency
+- *Inference Optimization* - Make the model does inference faster
+- *Model Compression* - Make the model smaller
+- Make the hardware it's deployed on run faster
+
+Useful link: [Awesome open source](https://awesomeopensource.com/projects/model-compression)
+
+Techniques ([survey](https://arxiv.org/abs/1710.09282))
+- Low-rank optimization
+- Knowledge distillation
+- Pruning
+- Quantization
 
 
 
