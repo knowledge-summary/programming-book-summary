@@ -76,6 +76,10 @@
 - [Chapter 7: Model Deployment and Prediction Service](#chapter-7-model-deployment-and-prediction-service)
   - [Batch Prediction vs Online Prediction](#batch-prediction-vs-online-prediction)
   - [Model Compression](#model-compression)
+    - [Low-Rank Factorization](#low-rank-factorization)
+    - [Knowledge Distillation](#knowledge-distillation)
+    - [Pruning](#pruning)
+    - [Quantization](#quantization)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
@@ -924,7 +928,7 @@ Some companies made major infrastructure overhauls by using a stream processor l
 ## Model Compression
 3 ways to reduce inference latency
 - *Inference Optimization* - Make the model does inference faster
-- *Model Compression* - Make the model smaller
+- ***Model Compression* - Make the model smaller**
 - Make the hardware it's deployed on run faster
 
 Useful link: [Awesome open source](https://awesomeopensource.com/projects/model-compression)
@@ -934,6 +938,66 @@ Techniques ([survey](https://arxiv.org/abs/1710.09282))
 - Knowledge distillation
 - Pruning
 - Quantization
+
+### Low-Rank Factorization
+Replace high-dimensional tensors with lower-dimensional tensors.
+
+Type
+- *Compact convolutional filters* - replace over-parameterized convolutional filters with compact blocks
+  - Example: SqueezeNet uses a number of strategies, including replacing *3 x 3* convolution with *1 x 1* convolution, which achieves AlexNet-level accuracy on ImageNet with 50 times fewer parameters
+- MobileNets decomposes the standard convolution of size *K x K x C* into a depthwise convolution (*K x K x 1*) and a pointwise convolution (*1 x 1 x C*), *K* is kernel size and *C* is number of channels
+
+Low-rank factorization tends to be specific to certain type of models and requires a lot of architectural knowledge to design, so it is not widely applicable
+
+### Knowledge Distillation
+A method in which a small model (student) is trained to mimic a larger model or ensemble of models (teacher)
+
+Example: DistilBERT which reduces the size of BERT model by 40% and being 60% faster, while retaining 97% of its language understanding capabilities
+
+Example design: Random forest as student and a transformer as the teacher
+
+Knowledge distillation tends to be highly dependent on the availability of a teacher network (easier for pretrained model as teacher, hard if teached model doesn't available). It is also sensitive to applications and model architecture, hence hasn't found wide usage in production.
+
+### Pruning
+Pruning is originally used for decision tree where uncritical/redundant sections of a tree are removed
+
+Pruning, in the context of neural networks, has 2 meanings
+- Remove entire node of a neural network
+- (more common) Find parameters least useful to predictions and set them to 0. This doesn't reduce the number of parameters. It helps with reducing the size by making a neural network more sparse
+
+Experiments show that the count of nonzero parameters can be reduced by 90% without compromising overall accuracy
+
+There are also idea of using the pruned architecture and retrain a dense model from scratch.
+
+### Quantization
+Quantization reduces a model's size by using fewer bits to represent its parameter. It is the most general and commonly used model compression method as it is straight-forward to do and generalize.
+
+Example: Using 16 bits (*half precision*) or integer (8 bits, method known as *fixed point*) to represent a float
+
+Extreme example: Using 1-bit representation (binary weight neural networks), such as BinaryConnect and XNOR-Net
+
+Pro
+- Reduce memory footprint
+- Improve computation speed (increase batch size, reduce training time and inference latency)
+
+Con
+- Represent a smaller range of values
+- Rounding number leads to rounding errors, risk rounding the number to under-/overflow and rendering it to 0
+
+Low-precision training has become increasingly popular
+- NVIDIA introduces Tensor Cores, processing units that support mixed-precision training
+- Google TPUs (tensor processing units) support training with Bfloat16 (16-bit Brain Floating Point Format) which Google dubbed "the secret to high performance on Cloud TPUs"
+
+Training in fixed-point is not yet as popular, but has had a lot of promising results. Fixed-point inference has become a standard in the industry. 
+
+Most popular frameworks for on-device ML inference offer post-training quantization for free with a few lines of code
+- Google's Tensorflow Lite
+- Facebook's PyTorch Mobile
+- NVIDIA's TensorRT
+
+
+
+
 
 
 
