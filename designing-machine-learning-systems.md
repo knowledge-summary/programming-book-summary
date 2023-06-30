@@ -80,6 +80,8 @@
     - [Knowledge Distillation](#knowledge-distillation)
     - [Pruning](#pruning)
     - [Quantization](#quantization)
+  - [ML on the Cloud and on the Edge](#ml-on-the-cloud-and-on-the-edge)
+    - [Compiling and Optimizing Models for Edge Devices](#compiling-and-optimizing-models-for-edge-devices)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
@@ -995,8 +997,40 @@ Most popular frameworks for on-device ML inference offer post-training quantizat
 - Facebook's PyTorch Mobile
 - NVIDIA's TensorRT
 
+## ML on the Cloud and on the Edge
+On the cloud means a large chunk of computation is done on the cloud, on the edge means a large chunk of computation is done on consumer devices
 
+On the cloud is more straight-forward to deploy. Downside includes 
+- high cloud costs
+- need for reliable network to send the data to the cloud and back
+- network latency
 
+On the edge helps to mitigate the risks, by 
+- reducing computation on the cloud which reduce cloud bills
+- working where there are no internet connection or the connections are unreliable
+- avoid sending data through network
+
+On the edge might also be helpful for handling sensitive data and complying with regulations such as GDPR.
+
+However, on the edge requires the edge devices to be powerful enough to handle the computation. (e.g. running BERT will quickly drain the battery)
+
+There is a race of developing edge devices optimized for different ML use cases.
+- Google, Apple, Tesla making their own chips
+- ML hardware start-ups that raised billions to develop better AI chips
+
+### Compiling and Optimizing Models for Edge Devices
+Different hardware backends have different memory layouts and compute primitives.
+
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0711.png)
+
+The compute primitives of different hardware backends
+- CPU - number (scalar)
+- GPU - One-dimensional vector
+- TPU - Two-dimensional vector
+
+Therefore, performing a operator (e.g. convolution operator) will be very different with different hardware backends. There are also different L1, L2, L3 layouts and buffer size which need to be taken into account to use them efficiently. Hence, providing support for a framework on a hardware backend is time-consuming and engineering-intensive.
+
+For example, TPUs were released in February 2018, but only started supporting PyTorch in September 2020.
 
 
 
