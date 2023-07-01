@@ -70,6 +70,12 @@
     - [Experiment Tracking](#experiment-tracking)
     - [Versioning](#versioning)
   - [Debugging  ML Models](#debugging--ml-models)
+  - [Distributed Training](#distributed-training)
+    - [Data Parallelism](#data-parallelism)
+    - [Model Parallelism](#model-parallelism)
+  - [AutoML](#automl)
+    - [Soft AutoML: Hyperparameter Tuning](#soft-automl-hyperparameter-tuning)
+    - [Hard AutoML: Architecture Search and Learned Optimizer](#hard-automl-architecture-search-and-learned-optimizer)
   - [Model Offline Evaluation](#model-offline-evaluation)
     - [Baselines](#baselines)
     - [Evaluation Methods](#evaluation-methods)
@@ -81,7 +87,10 @@
     - [Pruning](#pruning)
     - [Quantization](#quantization)
   - [ML on the Cloud and on the Edge](#ml-on-the-cloud-and-on-the-edge)
-    - [Compiling and Optimizing Models for Edge Devices](#compiling-and-optimizing-models-for-edge-devices)
+    - [Edge Devices](#edge-devices)
+      - [Optimize Model for Edge Device](#optimize-model-for-edge-device)
+      - [Manual vs Using ML to Optimize ML](#manual-vs-using-ml-to-optimize-ml)
+      - [ML in Browsers](#ml-in-browsers)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
@@ -786,16 +795,18 @@ When considering what model to use, besides of model's performance (eg: accuracy
 - When creating an ensemble, the less correlation there is among base learners, the better the ensemble will be. (eg: one transformer model, one RNN, one gradient-boosted tree)
 - Type of ensembles
   - Bagging (bootstrap aggregating)  
-    Given a dataset, sample with replacement to create different datasets (called bootstrap), and train a classification or regression model on each of these bootstraps. (eg: Random Forest)
+    Given a dataset, sample with replacement to create different datasets (called bootstrap), and train a classification or regression model on each of these bootstraps. (e.g. Random Forest)
   - Boosting  
     Boosting is a family of iterative ensemble algorithms that convert weak learners to strong ones. The samples are weighted differently among iterations, where future weak learners focus more on the misclassified examples. (eg: GBM - XGBoost, LightGBM)
   - Stacking  
     Create a meta-learner that combines the outputs of the base learners to output final predictions
 
+[Ensemble guide](https://github.com/MLWave/Kaggle-Ensemble-Guide) by Kaggle legendary's team, MLWave
+
 ## Experiment Tracking and Versioning
 During the model development process, you often have to **experiment with many architectures and many different models**. It is important to keep track of all the definition needed to re-create an experiment and its relevant artifacts. An **artifact** is a file generated during an experiment (eg: loss curve, logs graph, intermediate results).
 
-This enables you to compare different experiments and choose the best suited one. It helps the understnaing of how small changes affect model's performance.
+This enables you to compare different experiments and choose the best suited one. It helps the understanding of how small changes affect model's performance, and give more visibility into how your model works.
 
 The process of tracking the progress and results of an experiment is called **experiment tracking**. The process of logging all the details of an experiment is called **versioning**.
 
@@ -803,7 +814,7 @@ Experiment Tracking Tools: MLFlow, Weights & Biases
 Versioning Tools: DVC
 
 ### Experiment Tracking
-It is important to track what's going on during training, not only to detect and address these issues, but also to evaluate whether the model is learning anything useful (eg: loss not decreasing, overfitting, underfitting).
+It is important to track what's going on during training, not only to detect and address these issues, but also to evaluate whether the model is learning anything useful (e.g. loss not decreasing, overfitting, underfitting, dead neuron, fluctuating weight values, running out of memory).
 
 Things to track:
 - Loss curve corresponding to train and eval splits
@@ -815,6 +826,8 @@ Things to track:
 
 Tracking gives you observability into the state of the model, especially when something happens.
 
+Example: Automatically make copies of all the code files needed for an experiment, log all outputs with their timestamp
+
 ### Versioning
 ML systems are part code, part data, so both need to be versioned.
 
@@ -823,25 +836,62 @@ Challenge of data versioning:
 - A line in data can be indefinitely long, especially if it's stored in a binary format. Specifying a diff can be not helpful
 - Dataset can be so large than duplicating it multiple times across different versions might be unfeasible
 - A dataset might not fit into a local machine
-- Definition of a diff when versioning data
-- Resolving merge conflicts can be challenging (especially when there is privacy law such as General Data Protection Regulation (GDPR))
+- Definition of a diff is unclear when versioning data (checksum, existence of file)
+- Resolving merge conflicts can be challenging 
+- Privacy law such as General Data Protection Regulation (GDPR) might make it legally impossible to recover older version of data
 
 As of 2021, data versioning tools like DVC only register a diff if the checksum of the total directory has changed and if a file is removed or added.
 
 Aggressive tracking and versioning helps with reproducibility, but it doesn't ensure reproducibility. The framework and hardware might introduce nondeterminism to the experiment results.
 
 ## Debugging  ML Models
-Reasons that an ML model can fail:
-- Theoretical constraints
-- Poor implementation of model
-- Poor choice of parameters
-- Data problems
-- Poor choice of features
+Challengs of debugging ML models
+- ML models fails silently
+- Difficulty in validating whether a bug has been fixed
+- Cross-functional complexity (data, labels, algorithm, code, infrastructure), which might be owned by different teams
 
-Tried-and-true debugging techniques by experienced ML engineers
+Reasons that an ML model can fail:
+- Theoretical constraints (e.g. linear regression might fail when the decision boundaries aren't linear)
+- Poor implementation of model (e.g. forgot to stop gradient updates when running evaluation)
+- Poor choice of parameters
+- Data problems (e.g. noisy labels, outdated statistic when performing normalization)
+- Poor choice of features (e.g. data leakage)
+
+Tried-and-true debugging techniques by experienced ML engineers (from [A Recipe for Training Neural Network](http://karpathy.github.io/2019/04/25/recipe/))
 - **Start simple and gradually add more components** -If you want to use a BERT-like model, which use both a masked language model (MLM) and next sentence prediction (NSP) loss, you might want to use only the MLM loss before adding NLS loss
 - **Overfit a single branch** - Try to overfit a small amount of data. If it can't overfit, there might be something wrong with the implementation
-- **Set a random seed** - to ensure consistency between different runs
+- **Set a random seed** - to ensure consistency between different runs and allows reproducibility
+
+## Distributed Training
+It's common to train a model using data that doesn't fit into memory (e.g. medical data, large-language models)
+
+Expertise in scalability is hard to acquire because it requires having regular access to massive compute resources.
+
+There are different scenarios
+- Full data doesn't fit into memory
+- Single data sample doesn't fit into memory
+
+When the data doesn't fit into memory, the algorithm of preprocessing (e.g. zero centering, normalizing, whitening), shuffling, batching data need to run out of core and in parallel. Gradient checkpoint can be used when a single data sample can't fit into memory.
+
+### Data Parallelism
+Data parallelism is a method to split data on multiple machines, train the model on all of them and accumulate gradients.
+
+Ways of accumulating gradients from different machines
+- Synchronous stochastic gradient descent (SGD)
+- Asynchronous stochastic gradient descent
+
+
+### Model Parallelism
+
+
+
+## AutoML
+
+### Soft AutoML: Hyperparameter Tuning
+
+
+### Hard AutoML: Architecture Search and Learned Optimizer
+
 
 
 
@@ -1018,7 +1068,7 @@ There is a race of developing edge devices optimized for different ML use cases.
 - Google, Apple, Tesla making their own chips
 - ML hardware start-ups that raised billions to develop better AI chips
 
-### Compiling and Optimizing Models for Edge Devices
+### Edge Devices
 Different hardware backends have different memory layouts and compute primitives.
 
 ![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0711.png)
@@ -1032,9 +1082,52 @@ Therefore, performing a operator (e.g. convolution operator) will be very differ
 
 For example, TPUs were released in February 2018, but only started supporting PyTorch in September 2020.
 
+Intermediate representation (IR) is a middleman to bridge the platform and the frameworks. With that, framework developers only need to translate their framework code into this middleman, hardware vendors can then support one middleman instead of multiple frameworks.
 
+Compilers generate a series of high- and low-level IRs before generating the code native to a hardware backend. The generation of IRs is also called lowering (lower high-level framework code into low-level hardware-native code)
 
+#### Optimize Model for Edge Device
+A few reasons that models are slow in the hardware
+- The generated code not taking advantage of data locality and hardware caches, or advanced features such as vector or parallel operations
+- No optimization across frameworks (e.g. pandas, tensorflow, LightGBM), although individual function in the framework might be optimized
 
+Expensive solution: Hire optimization engineers to optimize the models for the hardware (e.g. develop quantization and robustness AI retraining tools, develop compiler features, develop neural network optimized for hardware)
+
+Optimizing compilers (compilers that optimize the code) is an alternative solution, as they can automate the process of optimizing models when lowering ML code into machine code (convolution, loops, cross-entropy).
+
+Local optimization techniques (run in parallel or reduce memory on chips)
+- *Vectorization* - execute multiple elements contagious in memory at the same time
+- *Parallelization* - Divide an array into independent chunks and process them individually
+- *Loop tiling* - Change data access order in a loop based on hardware, to leverage hardware's memory or cache
+- *Operation fusion* - Fuse multiple operators into one to avoid redundant memory access (e.g. horizaontal and vertical fusion of the computation graph of convolutional neural network)
+
+![Operation fusion](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0714.png)
+Vertical and horizontal fusion of the computation graph of a convolution neural network
+
+#### Manual vs Using ML to Optimize ML
+There are many possible ways to execute a given computation graph. Traditionally, optimization engineers come up with heuristics based on their experience (e.g. engineers focus exclusively on speeding up ResNet-50 on DGX 100 server)
+
+A few drawbacks of heuristics optimization
+- Most likely is nonoptimal
+- Nonadaptive, and require enormous amount of efforts for each new frameworks and hardwares
+- Dependent on operations (e.g. optimization of transformer, RNN, CNN are different)
+
+ML is good at approximating the solution to intractable problems. It can be used to narrow down the search space for executing a computation graph.
+
+Example of optimizing the execution of computation graph
+- For PyTorch on GPUs, there is `torch.backends.cudnn.benchmark=True`, which enable cuDNN autotune, which search over a predetermined set of options to execute a convolution operator and choose the fastest way (only work for convolution operators)
+- [autoTVM](https://tvm.apache.org/docs/reference/api/python/autotvm.html) which works with subgraphs
+
+ML-powered compilers can be slow and take hours or even days to perform optimization. This optimization is ideal when there is a model ready for production and target hardware to run inference on. The result can be cached and used to both optimize existing model and provide a starting point for future tuning sessions.
+
+#### ML in Browsers
+Running ML in browsers avoid the hardware compatibility issues. However, it can be slow.
+
+Approach
+- Compile model into Javascript (Tensorflow.js, Synaptic, brain.js)
+- Compile model to WebAssembly (WASM)
+
+WASM is more performant than Javascript, and it is widely. However, running models in browser using WASM is still slower comparing to running in native applications
 
 
 # Chapter 8: Data Distribution Shifts and Monitoring
