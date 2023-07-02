@@ -877,9 +877,18 @@ When the data doesn't fit into memory, the algorithm of preprocessing (e.g. zero
 Data parallelism is a method to split data on multiple machines, train the model on all of them and accumulate gradients.
 
 Ways of accumulating gradients from different machines
-- Synchronous stochastic gradient descent (SGD)
-- Asynchronous stochastic gradient descent
+- Synchronous stochastic gradient descent (SGD) - models wait for all of the machines to finish a run
+- Asynchronous stochastic gradient descent - models update the weight using the gradient from each machine separately
 
+Synchronous SGD might face problems with straggler (machine that is slow, possibly due to low computing power), which cause the entire system to slow down. There have been algorithms that effectively address this problem.
+
+Asynchronous SGD might face problems of gradient staleness because the gradients from one machine have caused the weights to change before the gradients from another machine have come in.
+
+In theory, asychronous SDG requires more steps to converge. In practice, when the number of weight is large, gradient updates are sparse which means most gradients updates does not update the same weight. In that case, gradient staleness becomes less of a problem and model converges similarly for both synchronous and asynchronous SGD.
+
+A problem of data parallelism is that spreading the model on multiple machines can cause the batch size to be very big (e.g. 1 machine 1,000 batches -> 1,000 machines 1 million batches). In practice, increasing batch size past a certain point yields diminishing returns. An intuitive way is to increase learning rate, but big learning rate might lead to unstable convergence.
+
+Another potential problem is that the main worker might uses a lot more resources, hence need to figure out a way to balance out the workload for better machine utilization
 
 ### Model Parallelism
 
