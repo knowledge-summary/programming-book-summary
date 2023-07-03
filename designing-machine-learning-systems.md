@@ -76,6 +76,7 @@
   - [AutoML](#automl)
     - [Soft AutoML: Hyperparameter Tuning](#soft-automl-hyperparameter-tuning)
     - [Hard AutoML: Architecture Search and Learned Optimizer](#hard-automl-architecture-search-and-learned-optimizer)
+  - [4 Phases of ML Model Development](#4-phases-of-ml-model-development)
   - [Model Offline Evaluation](#model-offline-evaluation)
     - [Baselines](#baselines)
     - [Evaluation Methods](#evaluation-methods)
@@ -891,20 +892,64 @@ A problem of data parallelism is that spreading the model on multiple machines c
 Another potential problem is that the main worker might uses a lot more resources, hence need to figure out a way to balance out the workload for better machine utilization
 
 ### Model Parallelism
+Model parallelism is when different components of the models are trained on different machine (e.g. machine 0 handles first 2 layers while machine 1 handles the next 2 layers, some machines handle forward pass while others handle backward pass)
 
+*Pipeline parallelism* is a clever technique to make different components of a model on different machines run more in parallel. For example, breaking a mini-batch to 4 micro-batches and run it on 4 machines. After machine 1 compute the first layer on the first micro-batch, machine 2 compute the second layer on the first micro-batch while machine 1 compute the first layer on the second micro-batch.
 
 
 ## AutoML
+AutoML refers to automating the process of finding ML algorithms to solve real world problems.
 
 ### Soft AutoML: Hyperparameter Tuning
+A hyperparameter is a parameter supplied by users whose value is used to control the learning process (e.g. learning rate, batch size, number of hidden layers, dropout probability, quantization)
 
+A model can give drastically different performances with different sets of hyperparameters.
+
+Despite the importance of hyperparameter tuning, many still ignore systematic approaches to hyperparameter tuning and perform manual, gut-feeling approach (e.g. Graduate Student Descent, a technique which graduate student fiddles around with the hyperparameters until the model works)
+
+Many popular frameworks come with built-in utilities or having third-party capabilities for hyperparameter tuning
+- Scikit-learn - auto-sklearn
+- Tensorflow - Keras Tuner
+- Ray - Tune
+
+Methods of hyperparameter tuning
+- Random search
+- Grid search
+- Bayesian optimization
+
+Model's performance might be more sensitive to some hyperparameters, which should be more carefully tuned.
+
+Relevant book: [AutoML: Methods, Systems, Challenges](https://www.automl.org/book/)
 
 ### Hard AutoML: Architecture Search and Learned Optimizer
+Architecture search or neural architecture search (NAS) for neural network, treat components of the model or the entire model as hyperparameter (e.g. size of convolution layer, existence of skip layer, existence of pooling layer). The set of building blocks varies based on the base architecture (e.g. CNN vs transformers)
 
+NAS setup consists of three components
+- *A search space* (define possible model architectures)
+- *A performance estimation strategy* (without training each candidate architecture until convergence as it is expensive)
+- *A search strategy* (random search can still be expensive, common approaches include reinforcement learning and evolution)
+  - Reinforcement learning - rewarding the choices that improve the performance estimation
+  - Evolution - Adding mutations to an architecture, choosing the best performance one, adding mutations to them, and so on
 
+In a typical ML training process, you have a model and a learning process (e.g. gradient descent). An optimizer specify how to update a model's weights given gradient updates.
 
+Optimizers can be sensitive to the setting of the hyperparameters, and the default hyperparameters don't often work well across architectures.
 
+A way to tackle this is to train optimizer instead of using hand-designed optimizer.
 
+Training optimizer for every task can be redundant. Another approach is to train it once on a set of existing tasks, and use it for every task after that, this makes use of aggregated loss on the existing tasks as the loss function, and existing designed optimizers as the learning rule. The learned model can then be used to train a better-learned optimizer.
+
+Training AutoML is expensive.
+
+EfficientNets, a family of models produced by Google's AutoML team, surpassed SOTA with up to 10x efficiency.
+
+## 4 Phases of ML Model Development
+1. Before machine learning (e.g. simple heuristics)
+2. Simplest machine learning models (e.g. Logistic regression, k-nearest neighbors, gradient-boosted tree)
+3. Optimizing simple models
+4. Complex models (once reached the limit of simple models and the use case demands significant model improvement)
+
+> You might even find non-ML solutions work fine and you don't need ML yet
 
 ## Model Offline Evaluation
 "How can I know that our ML models are any good?"  
