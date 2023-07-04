@@ -954,25 +954,38 @@ EfficientNets, a family of models produced by Google's AutoML team, surpassed SO
 ## Model Offline Evaluation
 "How can I know that our ML models are any good?"  
 
+Lacking a clear understanding of how to evaluate ML systems can limit your ability to find the best solution for your need, and make it harder to convince your managers to adopt ML.
+
+Ideally, the evaluation methods should be the same during both development and production. However, it is usually impossible as you don't have ground truth labels in production.
+
+For tasks with natural labels, this might work. For others, one might have to rely on extensive monitoring to detect changes and failures in the ML system's performance.
+
 ### Baselines
-- Random baseline
-- Simple heuristic
-- Zero rule baseline
-- Human baseline
-- Existing solutions
+Evaluation metrics, by themselves, mean little. It is essential to know the baseline you are evaluating against.
+
+The five baseline that might be useful across use cases
+- **Random baseline** (e.g. prediction generated using uniform distribution or task's label distribution)
+- **Simple heuristic** (e.g. rank newsfeed in reverse chronological order, to optimize user time spend)
+- **Zero rule baseline** (heuristics where the baseline model always predicts the most common class)
+- **Human baseline** (ML can be designed to automate what would have been otherwise done by human, hence it's useful to know how the model perform compared to human experts, e.g. self-driving system)
+- **Existing solutions** (ML can be designed to replaced existing solutions, hence it is crucial to compare the performances)
 
 ### Evaluation Methods
-- Pertubation tests
-- Invariance tests
-- Directional expectation tests
-- Model calibration
-- Confidence measurement
-- Slice-based evaluation
-  - Heuristics-based
-  - Error analysis
-  - Slice finder
+- **Pertubation tests** - Make small changes to test splits (e.g. add background noise or randomly clip the audio clips to simulate variance of real-world data) to see how they affects the model's performance, make the model more resilient
+- **Invariance tests** - Keep the inputs same but change the sensitive information (e.g. race) to see if the output change, to detect biases
+- **Directional expectation tests** - Certain changes in the inputs should cause predictable changes in outputs (e.g. increasing lot size should increase housing price). Investigate if the model learns in the opposite direction
+- **Model calibration** - Imagine that a prediction state that a watcher has a watching habits of 80% romance and 20% comedy, a calibrated system will have recommendations that are more representative of user's actual watching habits, instead of only romance movies (techniques: `sklearn.calibration.calibration_curve`, platt scaling)
+- **Confidence measurement** - While most metrics measure the system's performance on average, confidence measurement is a metric for each individual sample. Can be a way to think about the usefulness threshold for each individual prediction
+- **Slice-based evaluation** - separate data into subsets (e.g. majority group and minority group) and looks at model's performance on each subset separately. Can help to detect biases and improve model's performance both overall and on critical data, and improve confidence of model performance in a more fine-grained way
+  - **Heuristics-based** - Slice data using domain knowledge
+  - **Error analysis** - Manually go through misclassified examples and find patterns among them
+  - **Slice finder** - Generating slice candidates with algorithms such as beam search, clustering or decision, then pruning out clearly bad candidates for slices, and then rank the candidates that are left
 
+Problem on focusing on overall metrics
+- Model might perform differently on different slices of data when the model should perform the same (e.g. lower accuracy in minority group despite higher overall accuracy)
+- Model might perform the same in different slices of data when the model should perform differently (e.g. paid vs unpaid users will have different churn rates)
 
+Simpson's paradox - a phenomenon in which a trend appears in several groups of data but disappears or reverses when the groups are combined
 
 
 # Chapter 7: Model Deployment and Prediction Service
@@ -985,7 +998,6 @@ Hard parts of deployment
 - Setting up the infrastructure so that the right person can be immediately notified when something goes wrong
 - Figure out what went wrong
 - Seamlessly deploy the updates to fix what's wrong
-
 
 Serialization - converting a model (model definition and model's parameter values) into a format that can be used by another application (e.g. tensorflow uses `tf.keras.Model.save()`, PyTorch uses `torch.onnx.export()`)
 
