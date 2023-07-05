@@ -95,6 +95,7 @@
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
+  - [Storage and Compute](#storage-and-compute)
 - [Chapter 11: The Human Side of Machine Learning](#chapter-11-the-human-side-of-machine-learning)
 
 
@@ -1210,6 +1211,52 @@ WASM is more performant than Javascript, and it is widely. However, running mode
 
 
 # Chapter 10: Infrastructure and Tooling for MLOps
+Production is a spectrum, the infrastructure required can vary.
+- Middle spectrum, reasonable scale - Gigabytes or Terabytes a day (e.g. Zillow, Uber)
+- High spectrum - Petabyte a day (e.g. Facebook)
+
+Infrastructure is a set of fundamental facilities that support development and maintenance of ML systems
+
+Four layers of infrastructure
+- **Storage and compute**
+  - Storage layer - where data is collected and stored (e.g. hard drive disk (HDD), solid stat disk (SSD))
+  - Compute layer - provide compute needed to run your ML workloads
+- **Resource management** - tools to schedule and orchestrate workloads (e.g. Airflow, Kubeflow, Metaflow)
+- **ML platform** - provides tools to aid the development of ML applications (such as model stores, feature stores, and monitoring tools) (e.g. SageMaker, MLFlow)
+- **Development environment**
+
+An ML platform required up-front investment from a company, but if it's done right, it can make the life of data scientists so much easier
+
+## Storage and Compute
+**Storage layer** is where data is collected and stored. **Compute layer** is all the compute resources and the mechanism to determine how these resources can be used.
+
+Storage layer can be HDD, SSD, Amazon S3, Snowflake, can be single source or spread out across multiple locations.
+
+Compute layer can be single CPU/GPU core, cloud compute managed by AWS Elastic Compute Cloud (EC2) or GCP.
+
+Compute units can be
+- Concurrent thread
+- Multiple CPU cores joined together to execute a larger job
+- Created for short-lived jobs such as AWS Step Function and GCP Cloud Run
+- More permanent without being tied to a job (e.g. Virtual Machine/instance)
+- Job in Spark or Ray
+- Pod in Kubernetes
+
+Metrics for compute units - memory (GB) and operation speed (FLOP - Floating Point Operations per Second)
+
+Some companies care not only about memory a compute unit have, but also how fast it is to load data in and out of memory (bandwidth memory or I/O bandwidth)
+
+- Hardware vendor advertises their GPUs/TPUs/IPUs have teraFLOPS
+- Companies that measure FLOP might have different idea of what is counted as an operation. Also, capability of compute units (FLOPS) isn't equivalent to speed of job (FLOPS).
+- As FLOPS is not very useful, many people just look into the number of cores
+
+*Utilization* - the ratio of number of FLOPs a job can run to the number of FLOPs a compute unit is capable of handling
+- Depending on the hardware backend and the application, a same utilization rate might be considered good or bad.
+- Utilization also depends on how fast you can load data into memory to perform the next operations
+
+Popular benchmark for hardware vendors to measure their hardware performance - [MLPerf](https://mlcommons.org/en/inference-datacenter-11/)
+
+
 
 
 
