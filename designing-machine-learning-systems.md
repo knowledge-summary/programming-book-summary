@@ -96,6 +96,10 @@
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
+    - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
+  - [Development Environment](#development-environment)
+    - [IDE](#ide)
+    - [Containers](#containers)
 - [Chapter 11: The Human Side of Machine Learning](#chapter-11-the-human-side-of-machine-learning)
 
 
@@ -1255,6 +1259,69 @@ Some companies care not only about memory a compute unit have, but also how fast
 - Utilization also depends on how fast you can load data into memory to perform the next operations
 
 Popular benchmark for hardware vendors to measure their hardware performance - [MLPerf](https://mlcommons.org/en/inference-datacenter-11/)
+
+### Public Cloud vs Private Data Centers
+Cloud compute is elastic, easy to use and can scale automatically, allows companies to build without worrying about the compute layer.
+
+As company grows, cloud cost gets high which prompts companies to moving their workload back to their data centers (called 'cloud repartition'). Cloud repartition require nontrivial up-front investment in both commodities and engineering effort.
+
+Some companies follow multicloud strategy to leverage different technologies available (e.g. GCP/Azure for ML training, AWS for deployment). The strategy don't usually happen by choice.
+
+## Development Environment
+The dev environment is where ML engineers write code, run experiments, and interact with the production environment where champion model are deployed and challenger models evaluated.
+
+The dev environment is severely underrated and underinvested in at most companies.
+
+Example
+- Git for version control code
+- DVC to version data
+- Weights & Biases or Comet.ml to track experiment during development
+- MLFlow to track artifacts of models when deploying them
+- GitHub actions for CI/CD
+
+Claypot AI is working on a platform that can help version and track all ML workflows in one place
+
+It is important to standardise dev environments
+- Dependency - using `requirements.txt`
+- Python version
+- Local vs cloud environment (e.g. Amazon SageMaker Studio)
+
+Benefits
+- Make IT support easier
+- Convenient for remote work
+- Help with security
+- Reduces the gap between dev and prod environment
+
+Cloud Dev environemtn might require some initial investments
+- Educate employees on cloud hygiene
+- Establishing secure connections to cloud
+- Security compliance
+- Avoiding wasteful cloud usage
+
+### IDE
+IDE is the editor where you write your code.
+
+Example
+- Native apps: VS Code, Vim
+- Browser-based: AWS Cloud9, GitHub Codespaces
+
+Notebook is stateful, but the order can be messy.
+
+Tools for notebook: 
+- [PaperMill](https://github.com/nteract/papermill) - parameterizing, executing, and analyzing Jupyter Notebook
+- [Commutor](https://github.com/nteract/commuter) - A notebook hub for viewing, finding, and sharing notebooks within an organization.
+- [nbdev](https://nbdev.fast.ai/) - A notebook-driven development platform
+
+### Containers
+In production, your environment is inherently stateless and new instances require new dependencies installations.
+
+Docker is designed to solve the problem to re-create an environment on any new instance
+
+In Docker, you create a Dockerfile with instructions. Running Dockerfile gives you a Docker image. Running Docker image gives you a Docker container.
+
+Docker image can be build from sctratch or from existing Docker image.
+
+Container registry (e.g. Dockre Hub, AWS ECR) is where you can share or find Docker image
 
 
 
