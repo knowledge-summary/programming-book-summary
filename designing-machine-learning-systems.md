@@ -100,6 +100,14 @@
   - [Development Environment](#development-environment)
     - [IDE](#ide)
     - [Containers](#containers)
+  - [Resource Management](#resource-management)
+    - [Basic Components](#basic-components)
+    - [Workflow management tools](#workflow-management-tools)
+  - [ML Platform](#ml-platform)
+    - [Model Development](#model-development)
+    - [Model Store](#model-store)
+    - [Feature Stores](#feature-stores)
+  - [Build vs Buy](#build-vs-buy)
 - [Chapter 11: The Human Side of Machine Learning](#chapter-11-the-human-side-of-machine-learning)
 
 
@@ -1323,11 +1331,112 @@ Docker image can be build from sctratch or from existing Docker image.
 
 Container registry (e.g. Dockre Hub, AWS ECR) is where you can share or find Docker image
 
+Different containers might be needed for different steps in the pipeline which requires different infrastructure or have conflicting dependencies. 
 
+*Container orchestration* can help with managing multiple containers
+- *Docker compose* is a light weight container orchestrator that can manage containers on a single host
+- *Kubernetes (K8s)* creates a network for containers to communicate and share resources. It helps to scale up and down and maintain high availability for the system
 
+## Resource Management
+In pre-cloud world, storage and compute resources were finite. Engineering efforts are spent on making the most out of the limited resources.
 
+In the cloud world, storage and compute resources were more elastic. Engineering efforts shifted from maximizing resource utilization to how to use resources cost-effectively. As long as the return is justified, company are OK with adding more resources to an application.
 
+ML workloads have two characteristics: repetitiveness and dependencies. These repetitive processes can be schedules and orchestrated to run smoothly and cost-effectively using available resources
 
+Most workflow management tools require you specify the workflow in a form of Directed acyclic graph (DAG). Else, if cycle exists, the job will run forever.
+
+### Basic Components
+- *Cron* - schedule repetitive jobs to run at a fixed times
+- *Schedulers* - cron programs that can handles dependencies (e.g. event-based triggers, actions on job fails). Handle job-type abttractions such as DAGs, priority queues, user-level quotes
+  - Schedulers tends to leverage queues to keep track of, query, prioritize and allocate resource to job. Hence it needs to be aware of the resources available (specified by user or estimated by scheduler)
+  - Example: Slurm, Google's Borg
+  - Concerned with *when* to run jobs and *what* resources are needed
+  - Often used for periodical jobs
+- *Orchestrators* - Handle lower-level abstracions such as machines, instances, clusters, service-level grouping, replication, etc
+  - Have ability to provision more computers to handle workloads exceeding the pool of available instances
+  - Example: Kubernetes (managed Kubernets - AWS Elastic Kubernetes Service (EKS) or Google Kubernetes Engine (GKE)), HashiCorp Nomad
+  - Concerned with *where* to get the resources
+  - Often used for services where you have a long-running server that responds to requests
+
+Schedulers usually run on top of orchestrators
+
+### Workflow management tools
+Data science workflow management tools - Airflow, Argo, Prefect, Kubeflow, Metaflow
+
+Workflow management tools come with schedulers, and the schedulers work with orchestrators to allocate resources to run the workflow.
+
+| Tool | Description | Con |
+| -- | -- | -- |
+| Airflow | <li>One of the earliest workflow orchestrator</li><li>Amazing task scheduler that comes with a huge library of operators connecting to cloud providers, databases, storage options</li><li>*Configuration as code* principle - belief that workflows are complex and should be defined with code instead of YAML</li> | <li>Monolithic - package entire workflows into one container --> hard to work across different containers</li><li>DAGs are not parameterized --> have to create new workflow for different parameter</li><li>DAGs are static --> Can't automatically create new steps at runtime as needed</li> |
+| Prefect | <li>Prefect's workflows are parameterized and dynamic<li>*Configuration as code* principle</li> | Containerized steps aren't the first priority of Prefect |
+| Argo | <li>Every step in an Argo workflow is run in its own container</li><li>Workflows are defined in YAML file, which allows you to define each step and its requirements in the same file</li> | <li>Can only run on K8s clusters, which are only available in production, local minikube can get messy</li><li>YAML file can get messy</li> |
+| Kubeflow | <li>Kubeflow Pipelines which is built on top of Argo and meant to used on top of K8s</li><li>Fully parameterized and dynamic</li><li>Write workflow in Python, Dockerfile and YAML file</li> | Kubeflow helps you abstract away other tools’ boilerplate by making you write Kubeflow boilerplate |
+| Metaflow | <li>Can be used with AWS Batch of K8s</li><li>Fully parameterized and dynamic</li><li>Use a Python decorator `conda` to spceify the requirements. Metaflow will automatically create container with all these requirements</li><li>Use `batch` decorator to execute on AWS batch</li> | - |
+
+## ML Platform
+As companies finds uses for ML in more applications, it is better to leveraging the same set of tools for multiple applications instead of different tools for each applications. This shared set of tools for ML deployment makes up the ML platform.
+
+Common components - Model development, model store, feature store
+
+Considerations when choosing a ML platform
+- Whether it works with your cloud providers or your own data center
+- Open source or managed service (security and privacy, extra engineering time for maintenance)
+
+### Model Development
+Tools for model development
+- AWS - [SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
+- GCP - [Vertex AI](https://cloud.google.com/vertex-ai/docs/predictions/overview#model_deployment)
+- Azure - [Azure ML](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-deploy-online-endpoints?view=azureml-api-2&tabs=azure-cli)
+- Alibaba - [Machine learning studio](https://www.alibabacloud.com/help/en/machine-learning-platform-for-ai/latest/online-model-use-cases)
+- [MLflow Models](https://www.mlflow.org/docs/latest/models.html)
+- [Seldon](https://www.seldon.io/)
+- [Cortex](https://github.com/cortexlabs/cortex) (no longer actively maintained)
+- [Ray Serve](https://docs.ray.io/en/latest/serve/index.html)
+
+Consideration when choosing model development tool
+- Ease of doing both batch and online prediction (batch prediction is usually trickier)
+- Monitoring capability such as shadow deployment, canary release, A/B testing
+
+### Model Store
+Storing model alone in blob storage isn't enough. To help debugging and maintenance, it's important to track as much information associated with a model as possible.
+| Information | Description | Example |
+| -- | -- | -- |
+| Model definition | Information required to create the shape of the model | Loss function, number of hidden layers |
+| Model parameters | Actual value of the parameters of the model |  |
+| Featurize and predict functions | Instruction to extract feature and predict. Usually wrapped in endpoints |  |
+| Dependencies | Python version, Python packages |  |
+| Data |  | Pointers to the loocation where the data is stored, name of the data, DVC commit that generated the data
+| Model generation code | Code that spcifies how the model was created |  |
+| Experiment artifacts | Artifacts generated during the model development phase | Graph, raw numbers |
+| Tags | Helps with model discovery and filtering | Owner, task |
+
+Companies might store artifacts in different places
+- S3 - Model definition and model parameters
+- Container - Dependencies
+- Snowflake - Data
+- Weights & Biases - Experiment artifacts
+- AWS Lambda - Featurize and prediction funcions
+
+MLflow is the most popular model store as of writing the book
+
+### Feature Stores
+Feature store can help address
+- *Feature management* - help teams to share and discover features, as well as manage roles and sharing settings for each feature, act as feature catalog (e.g. [Amundsen](https://www.amundsen.io/amundsen/), [DataHub](https://github.com/datahub-project/datahub))
+- *Feature transformation/computation* - perform feature computation and store the results of this computation, act like a data warehouse
+- *Feature consistency* - Unify the logic for both batch features and streaming features to ensure the consistency between features during training and features during inference
+
+Exact capabilities of feature stores vary from vendor to vendor
+
+[Feast](https://feast.dev/) is the most popular feature store as of writing the book
+
+[Tecton](https://www.tecton.ai/feature-store/) is a fully managed feature store that promise to handle both batch features and online features
+
+## Build vs Buy
+Factors for build vs buy decision
+- **The stage your company is at** - leveage vendor solutions in early stage to get started quickly, move out when vendor costs become exorbitant
+- **What you believe to be the focus or the competitive advantages of your company** - "if it is something we want to be really good at, we'll manage that in-house. If not, we'll use a vendor"
+- **The maturity of the available tools** - Early adopters of new techs might not be able to find solution that is mature enough
 
 
 # Chapter 11: The Human Side of Machine Learning
