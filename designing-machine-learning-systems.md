@@ -93,6 +93,9 @@
       - [Manual vs Using ML to Optimize ML](#manual-vs-using-ml-to-optimize-ml)
       - [ML in Browsers](#ml-in-browsers)
 - [Chapter 8: Data Distribution Shifts and Monitoring](#chapter-8-data-distribution-shifts-and-monitoring)
+  - [System Failures](#system-failures)
+    - [Software System Failures](#software-system-failures)
+    - [ML-Specific Failures](#ml-specific-failures)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
@@ -1210,6 +1213,29 @@ WASM is more performant than Javascript, and it is widely. However, running mode
 
 
 # Chapter 8: Data Distribution Shifts and Monitoring
+## System Failures
+A failure happens when one or more expectations of the system is violated.
+
+In traditional software, we care about operational metric (e.g. latency and throughput)\
+In ML system, we care about both operational metrics and its ML performance metrics (e.g. accuracy)
+
+Operational expectation violations are easier to detect, as they're usually accompanies by an operational breakage (e.g. timeout, 404 error, out-of-memory error, segmentation fault)\
+ML performance expectation violations are harder to detect, as they required measuring and monitoring the performance of ML models in production
+
+### Software System Failures
+Software system failures are failures that would have happened to non-ML systems.
+- *Dependency failure* - A software package or codebase that your system depends on break
+- *Deployment failure* - Failure caused by deployment errors (e.g. deploy wrong version of model, insufficient permission)
+- *Hardware failure* - Hardware used to deploy the model doesn't behave the way it should (e.g. overheat and break down)
+- *Downtime or crashing* - Server (e.g. AWS, hosted service) is down
+
+Addressing software system failures require not ML skills, but traditional software engineering skills
+
+ML engineers at Google found that 60 out of 96 failures happened due to causes not directly related to ML, and usually related to distribution systems (e.g. workflow scheduler, orchestrator, data pipeline)
+
+### ML-Specific Failures
+ML-specific failures are failures specific to ML systems.
+
 
 
 
