@@ -1235,6 +1235,24 @@ ML engineers at Google found that 60 out of 96 failures happened due to causes n
 
 ### ML-Specific Failures
 ML-specific failures are failures specific to ML systems.
+- Data collection and processing problems
+- Poor hyperparameters
+- Change in the training pipeline not correctly replicated in the inference pipeline and vice versa
+- Data distribution shifts - production data differing from training data
+- Edge cases - data samples so extreme that they might cause the model to make catastrophic mistakes, different with outliers
+- Degenerate feedback loops
+
+The test data we use to evaluate a model during development is supposed to represent unseen data, and the model's performance on the test data is supposed to give us an idea of how well the model will generalize
+
+The assumption that it is essential for the training data and the unseen data to come from a stationary distribution that is the same, is usually incorrect in the real world.
+- The underlying distribution of the real-world data is unlikely to be the same as the underlying distribution of the training data. Real world data is multifaceted and virtually infinite. This divergence between training and real world leads to common failure mode known as *train-serving skew*
+- The real world isn't stationary, things change (e.g. searching for Wuhan when covid happen was different than before, season change)
+
+A lot of what might looks like data shifts might be caused by internal error, such as mishandled of data, feature, deployed model version
+
+
+
+
 
 
 
