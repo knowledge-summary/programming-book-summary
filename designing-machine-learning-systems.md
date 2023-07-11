@@ -96,6 +96,9 @@
   - [System Failures](#system-failures)
     - [Software System Failures](#software-system-failures)
     - [ML-Specific Failures](#ml-specific-failures)
+      - [Degenerate Feedback Loops](#degenerate-feedback-loops)
+  - [Data Distribution Shift](#data-distribution-shift)
+    - [Type of Data Distribution Shifts](#type-of-data-distribution-shifts)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
@@ -1235,22 +1238,50 @@ ML engineers at Google found that 60 out of 96 failures happened due to causes n
 
 ### ML-Specific Failures
 ML-specific failures are failures specific to ML systems.
-- Data collection and processing problems
-- Poor hyperparameters
-- Change in the training pipeline not correctly replicated in the inference pipeline and vice versa
+- Data collection and processing (discussed in Chapter 4)
+- Poor hyperparameters (discussed in Chapter 6)
+- Change in the training pipeline not correctly replicated in the inference pipeline and vice versa (discussed in Chapter 7)
 - Data distribution shifts - production data differing from training data
 - Edge cases - data samples so extreme that they might cause the model to make catastrophic mistakes, different with outliers
 - Degenerate feedback loops
 
+#### Degenerate Feedback Loops
+A *degenerate feedback loop* can happen when the predictions themselves influence the feedback, which in turn, influences the next iteration of the model (e.g. a system that recommend songs to users might rank the recommended songs higher, which make users click on initial predictions more). This is named "exposure bias", "popularity bias", "filter bubbles", "echo chambers". Another example is resume screening, recruiters only interview people whose resumes are recommended by the model, and form a bias data for the model.
+
+Ways to detect degenerate feedback loops
+- Measure popularity diversity of a system's output using metrics such as *aggregate diversity* and *average coverage of long-tail items*
+- Measurement of hit rate against popularity
+  - Divide items into bucket based on their popularity
+  - Measure the prediction accuracy for each bucket
+  - Check if the recommender system is better at recommending popular items
+
+Ways to correct degenerate feedback loops
+- Randomization - instead of showing only the items that the system reanked highly, show users random items and use their feedbacks to determine the true quality of these items (e.g. TikTok). Con is that it is at the cost of user experience
+- Positional features - Add positions as a feature to account for its affect during training, set position as the same across sample during inference
+  - More sophisticated approach - 2 models
+    - First model predicts the probability of user see and consider a recommendation based on position
+    - Second model predicts the probability that the user clicks on the item
+
+## Data Distribution Shift
+*Data distribution shift* refers to the phenomenon in supervised learning when the data a model works with change over time, which causes this model's prediction to become less accurate as time passes.
+
+Source distribution vs target distribution (distribution of the data of the model)
+
 The test data we use to evaluate a model during development is supposed to represent unseen data, and the model's performance on the test data is supposed to give us an idea of how well the model will generalize
 
-The assumption that it is essential for the training data and the unseen data to come from a stationary distribution that is the same, is usually incorrect in the real world.
+The assumption for the training data and the unseen data to come from a stationary distribution that is the same, is usually incorrect in the real world.
 - The underlying distribution of the real-world data is unlikely to be the same as the underlying distribution of the training data. Real world data is multifaceted and virtually infinite. This divergence between training and real world leads to common failure mode known as *train-serving skew*
 - The real world isn't stationary, things change (e.g. searching for Wuhan when covid happen was different than before, season change)
 
 A lot of what might looks like data shifts might be caused by internal error, such as mishandled of data, feature, deployed model version
 
-
+### Type of Data Distribution Shifts
+Input as X and output as Y
+| Type | Definition | Example |
+| -- | -- | -- |
+| *Concept drift* (also known as *posterior drift*) | When *P(Y\|X)* changes but *P(X)* remains the same | Housing price before and during COVID pandemic have the same distribution of houses feature, but different pricing distribution |
+| *Covariate drift* | When *P(X)* changes but *P(Y\|X)* remains the same |  |
+| *Occasionally label shift* (also known as *prior drift*, *prior probability shift*, or *target shift*) | When *P(Y)* changes but *P(X\|Y)* remains the same |  |
 
 
 
