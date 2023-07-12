@@ -99,6 +99,7 @@
       - [Degenerate Feedback Loops](#degenerate-feedback-loops)
   - [Data Distribution Shift](#data-distribution-shift)
     - [Type of Data Distribution Shifts](#type-of-data-distribution-shifts)
+    - [Detecting Data Distribution Shifts](#detecting-data-distribution-shifts)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
@@ -1277,14 +1278,28 @@ A lot of what might looks like data shifts might be caused by internal error, su
 
 ### Type of Data Distribution Shifts
 Input as X and output as Y
-| Type | Definition | Example |
-| -- | -- | -- |
+| Type | Definition | Example | Remark |
+| -- | -- | -- | -- |
 | *Concept drift* (also known as *posterior drift*) | When *P(Y\|X)* changes but *P(X)* remains the same | Housing price before and during COVID pandemic have the same distribution of houses feature, but different pricing distribution |
-| *Covariate drift* | When *P(X)* changes but *P(Y\|X)* remains the same |  |
-| *Occasionally label shift* (also known as *prior drift*, *prior probability shift*, or *target shift*) | When *P(Y)* changes but *P(X\|Y)* remains the same |  |
+| *Covariate drift* | When *P(X)* changes but *P(Y\|X)* remains the same | Training data of breast cancer prediction which consist more female above 40, while inference data does not, but given the age, the probability of breast cancer should be the same | Can be caused by sample selection problem or artificial altered data or model learning process (e.g. active learning). If real-world input distribution is known, one can leverage importance weighting to train the model to work for real-world data |
+| *Occasionally label shift* (also known as *prior drift*, *prior probability shift*, or *target shift*) | When *P(Y)* changes but *P(X\|Y)* remains the same | Randomly select person with breast cancer in training data (with more women above 40) and test data respectively, both have the same probability of being over 40 | When the input distribution changes, the output distributions also changes, result in both covariate shift and label shift |
 
+> A covariate is an independent variable that can influence the outcome of a given statistical trial but is not of direct interest.
 
+General data distribution shifts
+- *Feature change* - When new features added, older features removed, or the set of all potential values of a feature changes (e.g. feature age change from year to month)
+- *Label schema change* - When the set of possible values for Y change (e.g. extra class, regression with new range)
 
+### Detecting Data Distribution Shifts
+Data distribution shifts is only a problem if they cause your model's performance to degrade.
+
+Ways to detect data distribution shifts
+1. Monitor model's accuracy-related metrics (e.g. accuracy, F1 score, recall, AUC-ROC, etc)
+   - Using ground truth if it is possible
+   - Monitor other distribution of interest (e.g. input distribution `P(X)`, label distribution `P(Y)`, conditional distribution `P(X|Y)` and `P(Y|X)`)
+> In the industry, most drift detection method focus on detecting changes in the input distribution
+2. Statistical method
+   - Compare statistics such as min, max, mean
 
 
 
