@@ -1530,6 +1530,24 @@ Factors for build vs buy decision
 
 
 # Chapter 11: The Human Side of Machine Learning
+## User Experience
+Nature of ML systems
+- ML systems are probabilistic instead of deterministic
+- Due to this probabilistic nature, ML systems’ predictions are mostly correct, and the hard part is we usually don’t know for what inputs the system will be correct
+- ML systems can also be large and might take an unexpectedly long time to produce a prediction
+
+| Challenge | Description | Example | Solution |
+| -- | -- | -- | -- |
+| Ensuring user experience consistency | Users expects a certain level of consistency, the inconsistency in ML predictions can be a hindrance | Booking.com have 200 filters, the ML team uses ML to suggest filter the users want, but the predictions might change each time, and it confuses users | ML team atBooking.com create a rule by specifying the conditions in which the system must return the same filter recommendations (e.g., when the user has applied a filter) and the conditions in which the system can return new recommendations (e.g., when the user changes their destination) |
+| Combatting "mostly correct" predictions | In some cases, we want less consistency and more diversity in a model's predictions |
+| Smooth failing | 
+
+> Consistency–accuracy trade-off - the recommendations deemed most accurate by the system might not be the recommendations that can provide user consistency
+
+## Team Structure
+
+
+
 
 
 
