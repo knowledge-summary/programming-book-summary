@@ -116,6 +116,8 @@
     - [Feature Stores](#feature-stores)
   - [Build vs Buy](#build-vs-buy)
 - [Chapter 11: The Human Side of Machine Learning](#chapter-11-the-human-side-of-machine-learning)
+  - [User Experience](#user-experience)
+  - [Team Structure](#team-structure)
 
 
 
@@ -1299,7 +1301,32 @@ Ways to detect data distribution shifts
    - Monitor other distribution of interest (e.g. input distribution `P(X)`, label distribution `P(Y)`, conditional distribution `P(X|Y)` and `P(Y|X)`)
 > In the industry, most drift detection method focus on detecting changes in the input distribution
 2. Statistical method
-   - Compare statistics such as min, max, mean
+   - Compare statistics such as min, max, mean, variance, various quantiles (such as 5th, 25th, 75th, 95th), skewness, kurtosis, etc
+     - [Tensorflow Extended's built-in data validation tools](https://www.tensorflow.org/tfx/data_validation/get_started). 
+     - Might not be sufficient
+   - Two-sample hypothesis test (two-sample test) - determine whether the difference between two population is statistically significant (difference detected with small sample is a more powerful indicator)
+     - Example: 
+       - Kolmogorov–Smirnov test (K-S or KS test) - non-parametric test that can work with any distribution, but can only used for one-dimensional data
+       - Least-Squares Density Difference - an algorithm based on the least-squares dentsty difference estimation method
+       - Maximum Mean Discrepancy (MMD) - a kernel-based technique for multivariate two-sample testing
+       - Learned Kernel MMD
+     - Example implementation - [Alibi Detect](https://github.com/SeldonIO/alibi-detect)
+     - It is recommended to perform dimension reduction before performing a two-sample test on it
+3. Time scale windows for detecting shifts
+   - A common approach to detect shift that happen over time is to treat input data to ML applications as time-series data
+   - The time scale window of data we look at affect the shift we can detect. Detecting temporal shifts is hard when shifts are confounded by seasonal variation
+   - Difference betwen *cumulative* and *sliding statistics*. Sliding statistics are computed within a single time slide window (e.g. an hour). Cumulative statistics are continually updated with more data
+   - Working with data in temporal space require knowledge of time-series analysis techniques such as time-series composition
+   - Current solution
+     - Company use distribution of training data as base and monitor production data distribution at a certain granularity (e.g. hourly, daily). The shorter the time frame, the faster the detection, but might have more false positive
+     - Platforms dealing with real-time data analysis provide merge operation that merges statistics from shorter time scale windows to create statistics for larger time series windows
+     - More advanced monitoring platforms provide *root cause analysis (RCA)* that analyze and detect exactly the time windows where a change in data happened
+
+> Spatial shifts are shifts that happen across access point (e.g. application getting a new group of users). Temporal shifts are shifts that happen over time.
+> Abrupt changes are easier to detect than slow, gradual change
+
+
+
 
 
 
