@@ -100,6 +100,13 @@
   - [Data Distribution Shift](#data-distribution-shift)
     - [Type of Data Distribution Shifts](#type-of-data-distribution-shifts)
     - [Detecting Data Distribution Shifts](#detecting-data-distribution-shifts)
+    - [Addressing Data Distribution Shifts](#addressing-data-distribution-shifts)
+  - [Monitoring and Observability](#monitoring-and-observability)
+    - [Monitoring Toolboxs](#monitoring-toolboxs)
+      - [Log](#log)
+      - [Dashboard](#dashboard)
+      - [Alert](#alert)
+    - [Observability](#observability)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
@@ -118,6 +125,13 @@
 - [Chapter 11: The Human Side of Machine Learning](#chapter-11-the-human-side-of-machine-learning)
   - [User Experience](#user-experience)
   - [Team Structure](#team-structure)
+    - [Involvement of subject matter experts (SME)](#involvement-of-subject-matter-experts-sme)
+    - [End-to-end data scientists](#end-to-end-data-scientists)
+      - [Approach 1: Have a separate team to manage production](#approach-1-have-a-separate-team-to-manage-production)
+      - [Approach 2: Data scientists own the entire process](#approach-2-data-scientists-own-the-entire-process)
+  - [Responsible AI](#responsible-ai)
+    - [Case study 1: Automated grader](#case-study-1-automated-grader)
+    - [Case Study 2: Anonymous data](#case-study-2-anonymous-data)
 
 
 
@@ -1325,11 +1339,143 @@ Ways to detect data distribution shifts
 > Spatial shifts are shifts that happen across access point (e.g. application getting a new group of users). Temporal shifts are shifts that happen over time.
 > Abrupt changes are easier to detect than slow, gradual change
 
+### Addressing Data Distribution Shifts
+Different companies have different capabilities and priorities when it comes to handling data distribtuion shifts
+
+Three main approaches
+1. Train models using massive datasets, hoping that training dataset is large enough to learn a comprehensive distribution, and whatever data points encountered in production come from this distribution
+2. Adapt a trained model to a target distribution without requiring new labels 
+   - Use causal interpretations together with kernel embeddings of conditional and marginal distributions to correct models' predictions for both covariate shifts and label shifts without using label from the target distribution
+   - Use domain-invariant representation learning, an unsupervised domain adaptation technique that can learn data representations invariant to changing distributions
+3. Retrain your model using the labeled data from the target distribution
+   - Considerations
+     1. Train from scratch (stateless training) or continue training from the last checkpoint (stateful training)
+     2. What data to use (e.g. data from last 24 hours,3 months, or from the point when data has started to droft)
+   - Other terms: domain adaptation and transfer learning
+     - Domain adaptation - Adapt current model/distribution (domain) to new distribution
+     - Transfer learning - Adapt a model trained on one joint distribution to another joint distribution
+   - Design your system to be robust to shift
+     - Consider the trade-off between performance and stability, a feature can be good for accuracy but deteriorate quickly
+     - Example: To predict whether a user will download an app, app ranking is used as a feature. App ranking can change quickly, you might want to instead bucket them into top 10, between 11 to 100, and so on, which has less power but more stability
+   - Design your system to be adaptive to shift
+     - Example: Housing price in major cities change faster than rural cities and require more frequent update. If you use one model, you need to update the model at the more frequent rate using data from both markets. Using separate model allow you to update each of them only when necessary
+
+Performanc degradation of models in production might be caused by huamn errors. It can be hard to identify what causes a data distribution shifts.
 
 
+## Monitoring and Observability
+**Monitoring** referes to the act of tracking, measuring and logging different metrics that can help to determine when something goes wrong.
 
+**Observability** means setting up our system in a way that gives us visibility into our system to help us investigate what went wrong. Observability is part of monitoring
 
+**Instrumentation** is the process of setting up our system for observability (e.g. adding timers to functions, counting NaNs in features, tracking how inputs are transformed, logging unusual events)
 
+ML systems are software systems, the first class of metrics to monitor are the operational metrics, which convey the health of the system. They are generally divided to three levels - network, machine, application
+
+Operational metrics
+- Latency and throughput
+- Number of prediction requests in the last minute, hour, day
+- Percentage of requests returning 2xx code
+- CPU/GPU and memory utilization
+
+Example: 
+Measuring *availability* - how often the system is available to offer reasonable performance to users \
+Metric: *uptime* - percentage of time a system is up
+
+> The condition to determine whether a system is up are defined in the service level objectives (SLOs) or service level agreements (SLAs). For example, an SLA may specify that the service is considered to be up if it has a median latency of less than 200 ms and a 99th percentile under 2s.
+> A service provider might offer an SLA that specifies their uptime guarantee, such as 99.99% of the time, and if this guarantee is not met, they'll give their customers back money.
+
+ML-specific metrics
+- Model's accuracy-related metrics
+  - Example: user feedback such as click, purchase, upvode, downvote, favourite, bookmark, share, etc
+  - Application can be engineered to collect user feedbacks
+  - Some feedback can be used to infer natural labels, or detect changes in performance (e.g. duration of time users spent on recommended video)
+- Predictions
+  - Low dimensional, easy to visualize and compute two-sample tests
+  - Acts as proxy for input distribution shifts
+- Features
+  - Feature monitoring is the focus of ML monitoring solutions in the industry
+  - Features include the intermediate and final features, they are well structured and follow predefined schema
+  - *Feature validation* (sometimes known as *table testing*, *table validation*, *unit tests for data*) - ensure that the features follow an expected schema (expected schemas are generated from training data or from common sense)
+    - If the min, max or median of a feature are within an acceptable range
+    - If the values of a feature satisfy a regular expression format
+    - If all the values of a feature belong to a predefined set
+    - If the values of a feature are always greater than the values of another features
+  - Tools: [Great Expectations](https://github.com/great-expectations/great_expectations), [Deequ](https://github.com/awslabs/deequ)
+  - Two-sample tests to detect whether the underlying distribution of a feature or a set of features has shifted
+- Raw inputs
+  - Raw data from different sources might have different formats
+  - Raw data is usually managed by other teams, such as data platforms team
+
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0805.png)
+
+Major concerns when doing feature monitoring
+- **Have many models in production, and each model uses many features** - monitoring can be expensive and increase system latency
+- **Tracking features is useful for debugging, but not very useful for detecting model performance degradation** - Feature distributions shifts all the time, and most changes are benign. If most drift alert is false negative, it can cause "alert fatigue" where the monitoring team stops paying attention to the alerts because they are so frequent
+- **Feature extraction is often done in multiple steps** - it can be hard to detect the cause of the drift
+- **Schema that your feature follow can change over time**
+
+### Monitoring Toolboxs
+Measuring, tracking and interpreting metrics for complex system is a nontrivial task, and engineers rely on a set of tools to help them do so.
+
+Terms
+- Logs - record events produced at runtime
+- Events - anything that can be of interest to the system developers, either at the time the event happens or later for debugging and analysis
+- Traces - a form of logs
+- Metrics - computed from logs
+- Dashboard
+- Alert
+
+Example of events
+- When a container starts
+- The amount of memory it takes
+- When a function is called and finished running
+- Other functions that the functions called
+- Input and output of a function
+- Crashes, stack traces, error codes
+
+#### Log
+The number of logs can grow very large very quickly (e.g. billions per day). Today, a system might consists of many different components: containers, schedulers, microservices, polyglot persistence, mesh routing, ephemeral auto-scaling instances. It can be hard to detect where the problem is.
+
+*Distributed tracing* is a method of monitoring and observing service requests in applications built on a microservice architecture.
+- Give each process a unique ID
+- Record all the metadata related with each event (e.g. the time it happens, the service where it happens, the function that is called)
+
+Many companies use ML to analyze log
+- Anomaly detection
+- Classify each event in terms of its priorities such as usual, abnormal, exception, error, and fatal
+- Predict the probability of related services being affected when a service fauls
+
+Logs are usually processed in batches - efficient, but problems can only be discovered periodically
+
+#### Dashboard
+Dashboard can be used to visualize metrics, and make monitoring accessible to non-engineers. Interpreting graphs require experience and statistical knowledge
+
+> Dashboard rot - Excessive metrics on dashboard that become counterintuitive
+
+It is important to pick the right metrics and abstract out lower-level metrics
+
+#### Alert
+Alert consists of three components
+- *An alert policy* - condition for an alert (e.g. accuracy < 90%)
+- *Notification channels* - who to be notified (e.g. slack channel, PagerDuty, email address)
+- *Description of the alert* - to help alerted person with understanding alert (e.g. provide mitigation instructions or runbook)
+
+Avoid alert fatigure
+- Nobody likes to be awakened at night for something outside of their responsibilities
+- Trivial alerts might desensitive people to critical alerts
+
+### Observability
+Observability is about instrumenting your system in a way to ensure that sufficient information about a system's runtime is collected and analyzed
+- Allows figuring out what went wrong by logs and metrics, without having to ship code to the system
+- Allows more fine-grain metrics, on top of detection of model's performance degrade
+  - Example: outliers in the last 10 minutes, all the users which receive wrong prediction, intermediate output
+  - Require to log system's output using tag and other identifying keywords
+- Observability also encompasses interpretability, to help understand how the entire Ml system, including ML models, works (e.g. ability to identify features that contribute to wrong predictions in the last hour)
+
+> Telemetry - A system's outputs collected at runtime. In the monitoring context, it refers to logs and metrics collected from remote components (e.g. cloud services, applications run on customer devices)
+
+Monitoring is passive
 
 
 # Chapter 9: Continual Learning and Test in Production
@@ -1561,18 +1707,97 @@ Factors for build vs buy decision
 Nature of ML systems
 - ML systems are probabilistic instead of deterministic
 - Due to this probabilistic nature, ML systems’ predictions are mostly correct, and the hard part is we usually don’t know for what inputs the system will be correct
-- ML systems can also be large and might take an unexpectedly long time to produce a prediction
+- ML systems can be large and might take an unexpectedly long time to produce a prediction
 
-| Challenge | Description | Example | Solution |
+| Challenge | Description | Problem | Solution |
 | -- | -- | -- | -- |
-| Ensuring user experience consistency | Users expects a certain level of consistency, the inconsistency in ML predictions can be a hindrance | Booking.com have 200 filters, the ML team uses ML to suggest filter the users want, but the predictions might change each time, and it confuses users | ML team atBooking.com create a rule by specifying the conditions in which the system must return the same filter recommendations (e.g., when the user has applied a filter) and the conditions in which the system can return new recommendations (e.g., when the user changes their destination) |
-| Combatting "mostly correct" predictions | In some cases, we want less consistency and more diversity in a model's predictions |
-| Smooth failing | 
+| Ensuring user experience consistency | Users expects a certain level of consistency, the inconsistency in ML predictions can be a hindrance | Booking.com have 200 filters, the ML team uses ML to suggest filters that the users want, but the predictions might change each time, and it confuses users | ML team atBooking.com create a rule by specifying <li>the conditions in which the system must return the same filter recommendations (e.g., when the user has applied a filter)</li> and <li>the conditions in which the system can return new recommendations (e.g., when the user changes their destination)</li> |
+| Combatting "mostly correct" predictions | In some cases, we want less consistency and more diversity in a model's predictions | Predictions from large language model such as GPT are not always correct, and it's expensive to fine-tune them on task-specific data. Mostly correct prediction is useful for users who can easily correct them and not the users who don't know how to or can't correct the responses | Show users multiple resulting predictions for the same input to increase the chance of at least one of them being correct. These predictions should be rendered in a way that even non-expert users can evaluate. Example: Render generated react code into visual web pages for non-engineering users to evaluate. Sometimes called *"human-in-the-loop"* |
+| Smooth failing | Actions when the queries where models take too long to respond | - | Backup systems that is less optimal than the main system but is guaranteed to generate predictions quickly (e.g. heuristics or simple models, cached precomputed predictions). Route to the backup system when main model takes too long to run |
 
 > Consistency–accuracy trade-off - the recommendations deemed most accurate by the system might not be the recommendations that can provide user consistency
+> Speed-accuracy trade-off - a model might have worse performance but run inference much faster
 
 ## Team Structure
+### Involvement of subject matter experts (SME)
+- SMEs include lawyers, dockers, farmers, bankers, stylists, etc
+- ML projects might benefits a lot to have SMEs involed in each step of the lifecycle
+- It is important to involve SMEs early on in the project planning phase and empower them to make contributions
+- Many companies build low-code/no-code platforms for SMEs, most of them are currently at the labeling, quality assurance, and feedback stages
 
+### End-to-end data scientists
+ML is not just ML problem but also an infrastructure problem. MLOps require Ops expertise, especially around deployment, contanerization, job orchestration, workflow management
+
+#### Approach 1: Have a separate team to manage production
+Pro:
+- Make hiring easier (hire people with one set of skills instead of multiple skills)
+- Make life easier for the hire
+
+Con:
+- Communication and debugging overhead
+- Debugging challenges - Might need cooperation from multiple teams to figure out what's wrong
+- Finger-pointing - Each team might think it's another team's responsibility to fix the problem
+- Narrow context - Less incentives to make changes to things outside of scope
+
+#### Approach 2: Data scientists own the entire process
+This is what the book's audience resonate with.
+
+Con:
+- Data scintists are expected to know everything about the process, and might end up writing more boilerplate code than data science
+
+1. Version control
+2. SQL + NoSQL
+3. Python
+4. Pandas/Dask
+5. Data structures
+6. Prob & stats
+7. ML algos
+8. Parallel computing
+9. REST API
+10. Kubernetes + Airflow
+11. Unit/integration tests
+
+Data scientists who own the entire process need good tools/infrastructures.
+
+> According to both Stitch Fix and Netflix, the success of a full-stack data scientists relies on the tools they have. They need tools that "abstract the data scientists from the complexities of containerization, distributed processing, automatic failover and other advanced computer science concepts.
+
+In Netflix's model, the specialists - people who originally owned a part of the project - first create tools that automate their parts, which can then be leverage by other people to own their own projects end-to-end.
+
+## Responsible AI
+Responsible AI is the practice of designing, developing, and deploying AI systems with good intentions and sufficient awareness to empower users, to engender trusts, and to ensure fair and positive impact to society. It consists of areas like fairness, privacy, transparency and accountability.
+
+ML is deployed into almost every aspect of our lives, failing to make ML sytems fair and ethical can cause catastrophic consequences.
+
+As developers of ML systems, you have the responsbility to
+- think about how your systems will impact users and society at large
+- help all stakeholders better realize their responsibilities towards the users by concretely implementing ethics, safety, and inclusitivity into your ML systems
+
+AI incident database - [website](https://incidentdatabase.ai/)
+
+### Case study 1: Automated grader
+UK cancelled A-level in the summer of 2020 due to COVID-19 pandemic. The Office of Qualifications and Examinations Regulation (Ofqual) sanctioned the use of an automated system to assign final A-level grades to students. The result turned out to be unjust and untrustworthy, and led to public outcries.
+
+Besides of a low model accuracy of 60%, there are other major failures.
+
+| Failure | Description |
+| -- | -- |
+| Setting the wrong objective | Ofqual choose the objective "maintaining standard across school" instead of "optimizing grading accuracy for students". This leads to disproportionately downgrade high-performing cohorts from historically low-performing schools (e.g. An A student from low-performing schools was downgraded to B) <br><br> Ofqual also failed to take into account the bias that that school with more resources outperform schools with fewer resources |
+| Insufficient fine-grained model evaluation to discover biases | Failed to address teachers' inconsistency in evaluation across demographic groups, multiple disadvantages for some protected groups, and racial discrimination that is endemic in some schools. Besides that, Ofqual doesn't have enough data for small schools, and use only teacher-assessed grades to assign final grades, which leads to better grades for private school with smaller classes <br><br> These biases might be discovered through the public release of the model's predicted grades with fine-grained evaluation to understand the model's performance for different slices of data (e.g. for schools of different sizes and for students from different backgrounds) |
+| Lack of transparency | Ofqual failed to make important aspects of their auto-grader public before it was too late (e.g. objective of the system, how they use teacher's assessment), the public therefore can't express their concern. <br><br> The consideration came from good intention, but also means that the system didn't get sufficient independent, external scrutiny |
+
+The boundary between what should be automated by algorithms and what should not is murky. A clearer boundary can only be achieved with more investments in time and resources from AI developers, the public and the authorities.
+
+### Case Study 2: Anonymous data
+Collecting and sharing datasets might violate the privacy and security of the users whose data is part of these datasets. To protect users, there has been calls for anonymization of personally identifiable information (PII)
+
+Anonymization may not be sufficient to prevent data misuse and erosion of privacy expectations.
+
+Example: Online fitness tracker Strava collects paths it records from users around the world as they exercise. This data, despite anonymization, allows people to discover patterns that exposes military bases
+
+Solution:
+- Opt-in instead of opt-out for default privacy setting
+- Make its clearer or easier for users to manage privacy setting
+- Developers must understand that their users might not have the technical know-how and privacy awareness, and proactively work to make the right settings the default
 
 
 
