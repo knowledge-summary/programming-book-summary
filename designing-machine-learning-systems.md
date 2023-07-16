@@ -132,6 +132,7 @@
   - [Responsible AI](#responsible-ai)
     - [Case study 1: Automated grader](#case-study-1-automated-grader)
     - [Case Study 2: Anonymous data](#case-study-2-anonymous-data)
+    - [A Framework for Responsible AI](#a-framework-for-responsible-ai)
 
 
 
@@ -1485,6 +1486,14 @@ Monitoring is passive
 
 
 
+
+
+
+
+
+
+
+
 # Chapter 10: Infrastructure and Tooling for MLOps
 Production is a spectrum, the infrastructure required can vary.
 - Middle spectrum, reasonable scale - Gigabytes or Terabytes a day (e.g. Zillow, Uber)
@@ -1799,7 +1808,15 @@ Solution:
 - Make its clearer or easier for users to manage privacy setting
 - Developers must understand that their users might not have the technical know-how and privacy awareness, and proactively work to make the right settings the default
 
+### A Framework for Responsible AI
+| Framework | Description |
+| -- | -- |
+| **Discover sources for model biases** | Bias can come from any step during a project lifecycle <li>*Training data* - might be biases against less represented group</li> <li>*Labeling* - the more annotators have to rely on their subjective experience, the more room for human biases</li><li> *Feature engineering* - features related to legally protected class (e.g. ethnicity, gender, religious practices). For example, zip code and high school diplomas are correlated to race </li><ul><li> Technique to tackle this: [AIF360](https://github.com/Trusted-AI/AIF360), [Infogram method](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/admissible.html)</li></ul><li> *Model's objective* - prioritizing model's performance on all users can skew the model towards the majority group of user</li><li> *Evaluation* - The need of adequate, fine-grained evaluation (sliced-based evaluation)</li> |
+| **Understand the limitations of data-driven approach** | Socioeconomic and cultural aspects, identify blind spot caused by too much reliance on data <li>Example: To build equtiable automated grading system, it's essential to work with domain experts to understand the demographic distribution of student population and how socioeconomic factors get reflected in the historical performance data</li>
+| **Understand the trade-offs between different desiderata** | <li>Privacy vs accuracy trade-off</li> The accuracy of differential privacy models drops much more for the underrepresented classes and subgroups <br><br><li>Compactness vs fairness trade-off</li> Model compression technique amplify algorithmic harm when the protected feature (e.g. sex, race, disability) is in the long tail of the distribution. It is found that pruning incurs a far higher disparate impact than is observed for the quantization techniques <br><br>Allocating more resources to auditing model behavior is recommended to avoid unintended harm |
+| **Act early** | Companies might decide to bypass ethical issues in ML models to save cost and time, only to discover risks in the future when they end up costing a lot more <br><br> The earlier in the development cycle of an ML system that you start thinking about how this system will affect the life of users and what biases your system might have, the cheaper it will be to address these biases |
+| **Create model cards** | Models cards are short documents accompanying trained model that provide information on how these models were trained and evaluated. Models cards are a step toward increasing transparency into the development of ML models. Tools: [Tensorflow](https://github.com/tensorflow/model-card-toolkit), [Metaflow](https://docs.metaflow.org/metaflow/visualizing-results/effortless-task-inspection-with-default-cards), [Scikit-learn](https://cloud.google.com/blog/products/ai-machine-learning/create-a-model-card-with-scikit-learn) |
+| **Establish processes for mitigating biases** | Systematic process reduce room for human error. E.g. Google's [recommended best practices for responsible AI](https://ai.google/responsibility/responsible-ai-practices/), IBM's [AI Fairness 360](https://ai-fairness-360.org/) |
+| **Stay up-to-date with responsible AI** | [ACM FAccT Conference](https://facctconference.org/index.html), the [Partnership on AI](https://partnershiponai.org/), the [Alan Turing Institute’s Fairness, Transparency, Privacy group](https://www.turing.ac.uk/research/interest-groups/fairness-transparency-privacy), and the [AI Now Institute](https://ainowinstitute.org/) |
 
-
-
-
+Responsible AI is an essential practice in today’s ML industry that merits urgent actions
