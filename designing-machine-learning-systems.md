@@ -108,6 +108,8 @@
       - [Alert](#alert)
     - [Observability](#observability)
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
+  - [Continual learning](#continual-learning)
+    - [Stateless Retraining vs Stateful Retraining](#stateless-retraining-vs-stateful-retraining)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
     - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
@@ -1480,15 +1482,29 @@ Monitoring is passive
 
 
 # Chapter 9: Continual Learning and Test in Production
+How do we adapt our models to data distribution shifts? The answer is by continually updating our ML models.
 
+## Continual learning
+Continual learning is largely an infrastructural problem.
 
+Very few companies update their models with every incoming samples in production, due to the following reason
+- If your model is neural network, learning with every incoming samples makes it susceptible to catastrophic forgetting. Catastrophic forgetting refers to the tendency of a neural network to completely and abruptly forget previously learned information upon learning new information
+- It makes training more expensive, as most hardware backends today were designed for batch processing
 
+Companies that employ continual learning in production update their models in micro-batches (e.g. update after every 512 or 1024 examples)The updated shouldn't be deployed until it's evaluated.
 
+Instead, you create a replica of the existing model and update this replica on new data, and only replace the existing model with the updated replica if the updated replica proves to be better. The existing model is called the champion model, and the updated replica, the challenger. In reality, a company might have multiple challenges at the same time, and handling the failed challengers is a lot more sophisticated than simply discarding it.
 
+A simplified workflow
+![](https://learning.oreilly.com/api/v2/epubs/urn:orm:book:9781098107956/files/assets/dmls_0901.png)
 
+Company might not need to update their models very frequently
+- The company don't have enough traffic (i.e. enough new data)
+ for that retraining schedule to make sense
+- The models don't decay that fast
+- More overhead and if there isn't justifiable performance improvement
 
-
-
+### Stateless Retraining vs Stateful Retraining
 
 
 
