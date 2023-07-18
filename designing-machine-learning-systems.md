@@ -110,6 +110,8 @@
 - [Chapter 9: Continual Learning and Test in Production](#chapter-9-continual-learning-and-test-in-production)
   - [Continual learning](#continual-learning)
     - [Stateless Retraining vs Stateful Retraining](#stateless-retraining-vs-stateful-retraining)
+    - [Scenarios that Continual Learning is Useful](#scenarios-that-continual-learning-is-useful)
+    - [Continual Learning Challenges](#continual-learning-challenges)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
     - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
@@ -1485,13 +1487,13 @@ Monitoring is passive
 How do we adapt our models to data distribution shifts? The answer is by continually updating our ML models.
 
 ## Continual learning
-Continual learning is largely an infrastructural problem.
+Continual learning is largely an infrastructural problem. It is about setting up infrastructure in a way that allows data scientist or ML engineer to update the model whenever it is needed, and deployed it quickly.
 
 Very few companies update their models with every incoming samples in production, due to the following reason
 - If your model is neural network, learning with every incoming samples makes it susceptible to catastrophic forgetting. Catastrophic forgetting refers to the tendency of a neural network to completely and abruptly forget previously learned information upon learning new information
 - It makes training more expensive, as most hardware backends today were designed for batch processing
 
-Companies that employ continual learning in production update their models in micro-batches (e.g. update after every 512 or 1024 examples)The updated shouldn't be deployed until it's evaluated.
+Companies that employ continual learning in production update their models in micro-batches (e.g. update after every 512 or 1024 examples). The updated shouldn't be deployed until it's evaluated.
 
 Instead, you create a replica of the existing model and update this replica on new data, and only replace the existing model with the updated replica if the updated replica proves to be better. The existing model is called the champion model, and the updated replica, the challenger. In reality, a company might have multiple challenges at the same time, and handling the failed challengers is a lot more sophisticated than simply discarding it.
 
@@ -1505,6 +1507,40 @@ Company might not need to update their models very frequently
 - More overhead and if there isn't justifiable performance improvement
 
 ### Stateless Retraining vs Stateful Retraining
+**Stateless retraining** - train the model from scratch each time (which is what most companies do)\
+**Stateful retraining** (or called fine-tuning, incremental learning) - model continue training on new data
+
+Benefits of stateful training
+- Require less data to update the model
+- Allow model to converge faster and require much less compute power, which save cost
+- Might be possible to avoid storing data altogether, where a data sample is used only once for training, this is helpful for data with strict privacy requirement
+
+Companies with the most successfully used stateful training also occasionally train their model from scratch on a large amount of data to calibrate it. Or possibly perform both stateful and stateless training and combine both updated model using technique such as parameter serve.
+
+Type of model updates
+- *Model iteration* - A new feature is added to an existing model architecture or the model architecture is changed
+- *Data iteration* - The model architecture and features remain the same, but you refresh this model with new data
+
+Stateful training is mostly applied for data iteration, as changing model architecture or adding a new feature still requires training the resulting model from scratch. Relevant research include [knowledge transfer](https://arxiv.org/abs/1511.05641) by Google, 2015 and [model surgery](https://arxiv.org/abs/1912.06719) by OpenAI, 2019.
+
+
+### Scenarios that Continual Learning is Useful
+- **Combat data distribution shift** (e.g. a slow ride demand neighbourhood suddenly experience a ride demand surge due to event)
+- **Adapt to rare event** (e.g. Black Friday, an important event that happen once a year, the model should learn throughout the day with fresh data)
+- **Tackle *continuous cold start* problem**
+  - *Cold start*: the problem arised when the model has to make predictions for a new user without any historical data
+  - *Continuous cold start*: the problem arised when the users visit the website rarely, change their interests over time, or exhibit different personas (e.g. users' behavior changes when user change from laptop to mobile, user visit sites too infrequent where the data gathered isn't useful)
+
+To tackle continuous cold start problem, if we could make our models adapt to each user within their visiting session, the models would be able to make accurate, relevant predictions to users even on their first visit. Tik Tok is a successful example.
+
+Continual learning is more powerful than batch training.
+
+### Continual Learning Challenges
+Fresh data access challenge
+
+
+
+
 
 
 
