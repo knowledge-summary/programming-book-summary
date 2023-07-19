@@ -112,6 +112,7 @@
     - [Stateless Retraining vs Stateful Retraining](#stateless-retraining-vs-stateful-retraining)
     - [Scenarios that Continual Learning is Useful](#scenarios-that-continual-learning-is-useful)
     - [Continual Learning Challenges](#continual-learning-challenges)
+    - [Four Stages of Continual Learning](#four-stages-of-continual-learning)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
     - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
@@ -1529,14 +1530,39 @@ Stateful training is mostly applied for data iteration, as changing model archit
 - **Adapt to rare event** (e.g. Black Friday, an important event that happen once a year, the model should learn throughout the day with fresh data)
 - **Tackle *continuous cold start* problem**
   - *Cold start*: the problem arised when the model has to make predictions for a new user without any historical data
-  - *Continuous cold start*: the problem arised when the users visit the website rarely, change their interests over time, or exhibit different personas (e.g. users' behavior changes when user change from laptop to mobile, user visit sites too infrequent where the data gathered isn't useful)
+  - *Continuous cold start*: the problem arised when the users visit the website rarely, change their interests over time, or exhibit different personas (e.g. users' behavior changes when user change from laptop to mobile, users visit sites too infrequent where the data gathered isn't useful)
 
 To tackle continuous cold start problem, if we could make our models adapt to each user within their visiting session, the models would be able to make accurate, relevant predictions to users even on their first visit. Tik Tok is a successful example.
 
 Continual learning is more powerful than batch training.
 
 ### Continual Learning Challenges
-Fresh data access challenge
+1. Fresh data access challenge
+   - Require ability to pull data continuously (e.g. from data warehouses, or directly from real-time transport such as Kafka)
+   - Most models today require labeled data
+   - Label computation, the process of looking back into the logs to extract labels, can be costly (e.g. product click -> product recommended -> query entered -> label as good recommendation)
+   - Best candidates: Natural labels with short feedback loop (e.g. dynamic pricing, estimate time of arrival)
+   - Programming labeling tools: Snorkel
+2. Evaluation challenge
+   - The more frequently the models are updated, the more opportunities there are for updates to fail
+   - Continual learning makes the models more susceptible to coordinated manupulation and adversarial attack -> important to thoroughly test model updates
+   - Evaluation takes time (e.g. fraud detection might need time to get enough data to perform evaluation)
+3. Algorithm challenge
+   - Only affects matrix-based and tree-based models
+   - Neural network can be updated with a data batch of any size, matrix-based model like collaborative filtering model require entire dataset to build the metric and perform dimension reduction
+     - There are algorithms to create tree-based model that can learn from incremental amounts of data (e.g. Hoeffding Tree)
+   - Also affect scaling as you need entire dataset to calculate statistics such as mean and max
+     - Using small subsets of data to compute statistics means these statistics can fluctuate a lot between different subsets
+     - To keep these statistics stable, you might want to compute these statistics online (e.g. Sklearn's StandardScaler has a `partial_fit`)
+
+### Four Stages of Continual Learning
+Stage 1: Manual, stateless training
+
+Stage 2: Automated retraining
+
+Stage 3: Automated, stateful training
+
+Stage 4: Continual learning
 
 
 
