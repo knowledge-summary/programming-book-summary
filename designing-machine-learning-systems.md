@@ -113,6 +113,7 @@
     - [Scenarios that Continual Learning is Useful](#scenarios-that-continual-learning-is-useful)
     - [Continual Learning Challenges](#continual-learning-challenges)
     - [Four Stages of Continual Learning](#four-stages-of-continual-learning)
+    - [How Often to Update the Models](#how-often-to-update-the-models)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
     - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
@@ -1556,17 +1557,39 @@ Continual learning is more powerful than batch training.
      - To keep these statistics stable, you might want to compute these statistics online (e.g. Sklearn's StandardScaler has a `partial_fit`)
 
 ### Four Stages of Continual Learning
-Stage 1: Manual, stateless training
+**Stage 1: Manual, stateless training**
+- Focus on developing new model, only update an existing model when the model's performance has degrades to the point that it's doing more harm and good, and the team has time to update it
+- Process of updating a model is manual and ad-hoc, involving many teams and prone to human error
 
-Stage 2: Automated retraining
+**Stage 2: Automated retraining**
+- Have more mature models, priority shifts from developing new models to maintaining and improving existing models
+- Automate retraining process from scratch (e.g. batch process using Spark)
+- Most companies with somewhat mature ML infrastructure are in this stage
+- Different models might require different training frequency, and there might be dependencies among the models (e.g. text classification model depends on embedding model)
+- Requirements - scheduler (e.g. Airflow, Argo), data (e.g. data gathering, feature extraction, labelling), model store (S3 bucket, more mature tools - Amazon Sagemaker, Databricks' MLFlow)
 
-Stage 3: Automated, stateful training
+> Log and wait - Feature extracted during prediction (to input into the model for prediction) can be reused for retraining, which helps to both saves computation and allows for consistency between prediction and retraining - [Faire article](https://craft.faire.com/building-faires-new-marketplace-ranking-infrastructure-a53bf938aba0)
 
-Stage 4: Continual learning
+**Stage 3: Automated, stateful training**
+- Shift from stateless training to stateful training
+- Require change in the mindset, stateless training is the norm
+- Require ability to track data and model lineage. 
+- As far as the author know, there isn't existing model store that has model lineage capacity to track the base model and the dependency of different data version
 
+**Stage 4: Continual learning**
+- Shift from fixed model update schedule to adaptive model update schedule (e.g. nothing happen last week, so the model require slower training schedule)
+- The model automatically update whenever data distribution shift and the model performance plummets
+- *Edge deployment* - deployment of computing and storage resources at the location where data is produced
+  - Model on a device (e.g. phone, watch, dronw) continually update and adapt to its environment as needed without having to sync with a centralized server. This saves centralized server cost, reduce network latency and improve data security and privacy
+- Require a mechanism to trigger models updates
+  - Time-based (e.g. every five minutes)
+  - Performance-based (e.g. model performance plummets)
+  - Volume-based (e.g. total amount of labeled data increase by 50%)
+  - Drift-based (e.g. major data distribution shift  detected)
+- Require a solid monitoring solution, to detect changes that matters and avoid false alarms
+- Require a solid pipeline to continually evaluate the model updates, ensure that updated model is working properly
 
-
-
+### How Often to Update the Models
 
 
 
