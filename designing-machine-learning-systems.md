@@ -1590,6 +1590,21 @@ Continual learning is more powerful than batch training.
 - Require a solid pipeline to continually evaluate the model updates, ensure that updated model is working properly
 
 ### How Often to Update the Models
+In the beginning, when the infrastructure is nascent and process of updating a model is manual and slow, the answer of how often to update the models is 'as often as you can'.
+
+As the infrastructure matures and process of updating a model is partially automated and can be done in a matters of hours, the answers of the question are dependant on the answer of "how much perfomance gain would I get from fresher data"
+
+It is important to run experiment to quantify the value of data freshness to the models.
+- Training your data from different time windows (e.g. months, weeks, days, hours, minutes) in the past and evaluating it on data from today to see how the performance changes (e.g. using data from Jan-Jun, Mar-Sep, Jun-Nov to train 3 models and test on data on Dec)
+- Experiment and evaluate type of model updates to perform - model iteration vs data interaction
+
+## Test in Production
+To sufficiently evaluate your models, you first need a mixture of offline evaluation and online evaluation.
+
+Offline evaluation is not enough
+- If you update the model to adapt to a new data distribution, it's not sufficient to evaluate this new model on test split from the old distribution
+
+
 
 
 
