@@ -1,7 +1,6 @@
-# Designing Machine Learning Systems - by Chip Huyen
+b# Designing Machine Learning Systems - by Chip Huyen
 
 # Table of Contents
-- [Designing Machine Learning Systems - by Chip Huyen](#designing-machine-learning-systems---by-chip-huyen)
 - [Table of Contents](#table-of-contents)
 - [Chapter 1: Overview of Machine Learning Systems](#chapter-1-overview-of-machine-learning-systems)
   - [When to use Machine Learning](#when-to-use-machine-learning)
@@ -114,6 +113,9 @@
     - [Continual Learning Challenges](#continual-learning-challenges)
     - [Four Stages of Continual Learning](#four-stages-of-continual-learning)
     - [How Often to Update the Models](#how-often-to-update-the-models)
+  - [Test in Production](#test-in-production)
+    - [Contextual Bandit](#contextual-bandit)
+    - [Other Factors of Good Evaluation Pipeline](#other-factors-of-good-evaluation-pipeline)
 - [Chapter 10: Infrastructure and Tooling for MLOps](#chapter-10-infrastructure-and-tooling-for-mlops)
   - [Storage and Compute](#storage-and-compute)
     - [Public Cloud vs Private Data Centers](#public-cloud-vs-private-data-centers)
@@ -408,7 +410,7 @@ Common types of real-time transports:
 
 Both can be highly scalable and fully distibuted.
 
-Tools for streaming data: Apache Flink, KSQL, Spark Streaming
+Tools for streaming data: Apache Flink, KSQL, Spark Streaming, Snowflake Streaming, Materialize, Decodable, Vectorize
 
 
 # Chapter 4: Training Data
@@ -1599,15 +1601,50 @@ It is important to run experiment to quantify the value of data freshness to the
 - Experiment and evaluate type of model updates to perform - model iteration vs data interaction
 
 ## Test in Production
-To sufficiently evaluate your models, you first need a mixture of offline evaluation and online evaluation.
+To sufficiently evaluate your models, you need a mixture of offline evaluation and online evaluation.
 
-Offline evaluation is not enough
-- If you update the model to adapt to a new data distribution, it's not sufficient to evaluate this new model on test split from the old distribution
+2 major test types of offline evaluation
+- Test split - testing on data from a static test split
+- Backtest - testing on data from a specific period of time in the past (e.g. testing with data from the last hours)
 
+Disadvantage of each test type
+- Test split - If you update the model to adapt to a new data distribution, it's not sufficient to evaluate this new model on test split from the old distribution. It is useful to test the model on the most recent data that you have access to
+- Backtest - Something might went wrong with the data pipelines and recent data might get corrupted. Hence, you should still evaluate the model on a static test set that you have extensively studied and (mostly) trust as a form of sanity check
 
+Offline evaluation is not enough, a model doing well on data from last hour doesn't mean it will continue doing well on the data in the future. The only way to know whether a model will do well in production is to deploy it and do test in production
 
+| Technique | Step | Description |
+| -- | -- | -- |
+| **Shadow deployment** | <ol><li>Deploy the candidate model in parallel with the existing model.</li><li>For each incoming request, route it to both models to make predictions, but only serve the existing model’s prediction to the user.</li><li>Log the predictions from the new model for analysis purposes.</li></ol> Only when the new model’s predictions are satisfactory do you replace the existing model with the new model. | Pro: The risk of new model doing something funky is low <br/><br/> Con: Expensive, as it double the number of predictions your system has to generate |
+| **A/B Testing**<br/><br/> Compare two variants of an object, typically by testing responses to these two variants, and determining which of the two variants is more effective | <ol><li>Deploy the candidate model alongside the existing model.</li><li>Route a percentage of traffic to the new model<ul><li>Common way: Both varaints serve traffic at the same time</li><li>There are cases where one model's predictions might affect another model's predictions (e.g. price affect available driver and customer). In those cases, you can run the variants alternatively (e.g. on different days)</li></ul></li><li>Monitor and analyze the predictions and user feedback, if any, from both models to determine whether the difference in the two models’ performance is statistically significant.</li></ol> | Factors for successful A/B testing <li>Truly randomized experiment</li><li>Run on sufficient number of samples to gain enough confidence</li> <br/> A/B testing used statistical hypothesis testing such as two-samples tests to measure statistical significance <br/><br/> It is possible to do A/B testing with more than two variants <br/><br/> Resource: [Intriduction to statistics for data science](https://towardsdatascience.com/introduction-to-statistics-e9d72d818745) |
+| **Canary Release** <br/><br/> A technique to reduce the risk of introducing a new software version in production by slowly rolling out the change to a small subset of users before rolling it out to the entire infrastructure | <ol><li>Deploy the candidate model alongside the existing model. The candidate model is called the *canary*.</li><li>A portion of the traffic is routed to the candidate model.</li><li>If its performance is satisfactory, increase the traffic to the candidate model. If not, abort the canary and route all the traffic back to the existing model.</li><li>Stop when either the canary serves all the traffic (the candidate model has replaced the existing model) or when the canary is aborted.</li></ol> | Canary releases can be used to implement A/B testing due to similarities in their setups. It can also be applied without A/B testing (e.g. roll out the models to less critical markets first)<br/><br/>Resource: [Netflix and Google's shared blog post](https://netflixtechblog.com/automated-canary-analysis-at-netflix-with-kayenta-3260bc7acc69) |
+| **Interleaving Experiments** | Instead of exposing a user to recommendations from a model, we expose that user to recommendations from both models and see which model's recommendation they will click on | Netflix found that interleaving reliably identifies the best algorithm with considerably smaller sample size compared to traditional A/B testing. <br/><br/> The two algorithms can be compared by measuring user preference. <br/><br/> It is important to note that the position of recommendations influences how likely a user will click on it. Hence, we must ensure that at any given position, a recommendation is equally likely to be generated by A or B (e.g. team-draft interleaving) |
+| **Bandits**<br/><br/>When you have multiple models to evaluate, Bandits determine how to route traffic to each model for prediction to determine the best model *while maximizing prediction accuracy for your user* | Bandits require the following <li>Ability to do online predictions</li><li>Preferably short feedback loops</li><li>Mechanism to collect feedback, calculate and keep track of each model's performance, and route prediction requests to different models based on their current performance</li> | Bandits are stateful. <br/><br/>Bandits are well studied and have been shown to be a lot more data efficient than A/B testing. Bandits require less data to determine which model is the best and, at the same time reduce opportunity cost as they route traffic to the better model more quickly. However, it is more difficult to implement than A/B testing because it requires computing and keeping track of models’ payoffs. <br/><br/> Resources: [ML Platform Meetup](https://netflixtechblog.com/ml-platform-meetup-infra-for-contextual-bandits-and-reinforcement-learning-4a90305948ef), [Zillow](https://medium.com/zillow-tech-hub/luca-472e5fc3b49c), [Stitch Fix](https://multithreaded.stitchfix.com/blog/2020/08/05/bandits/), book [Reinforcement Learning](http://incompleteideas.net/book/RLbook2020.pdf)<br/><br/> |
 
+Algorithm for multi-armed bandit problem for exploration
+- ε-greedy: For a percentage of time (`ε`% of time), route traffic to the currently best performing model, and for the other `1-ε`% of the time, you route traffic to a random model.
+- Thompson Sampling: selects a model with a probability that this model is optimal given the current knowledge (e.g. better accuracy)
+- Upper Confidence Bound (UCB): selects the item with the highest upper confidence bound
 
+### Contextual Bandit
+If bandits for model evaluation are to determine the payout (i.e., prediction accuracy) of each model, contextual bandits are to determine the payout of each action (e.g. an item/ad to show users). Contextual bandits are algorithms that help balance between showing users the items they will like and showing the item that you want feedback on. It is the same exploration-exploitation trade-off in reinforcement learning, and are also called one-shot reinforcement learning problem.
+
+If you have a recommendation system with 1000 items, it is a 1000-arm bandit problem. If you recommend the users 10 items each time, you choose the 10 best arm. You will only get the user feedback for the shown items. This is known as *partial feedback* problem, also known as *bandit feedback*.
+
+Contextual bandits can be thought as classification problem with bandit feedback. It is harder to implement than model bandits, as the exploration strategy depends on the ML model’s architecture and is less generalizable across use cases.
+
+Resources: [Paper by Twitter](https://arxiv.org/abs/2008.00727), [Paper by Google](https://arxiv.org/abs/1909.03212)
+
+### Other Factors of Good Evaluation Pipeline
+A good evaluation pipeline is not only about what tests to run, but also about who should run those tests.
+
+Data scientists tend to evaluate their new model ad hoc using the sets of tests they like.
+- The process is imbued with biases as data scientists probably won't use the models in a way most users will
+- Ad hoc nature of the process means the evaluation result is prone to variability
+
+It is important for team to outline clear pipelines on how models should be evaluated, the tests to run, the order, the threshold to pass to be promoted.
+
+It is better if these pipelines are automated and kicked off whenever there's a new model update. The process would be similar to the continuous integration/continuous deployment (CI/CD) process for traditional software engineering.
 
 
 # Chapter 10: Infrastructure and Tooling for MLOps
@@ -1906,9 +1943,9 @@ Besides of a low model accuracy of 60%, there are other major failures.
 
 | Failure | Description |
 | -- | -- |
-| Setting the wrong objective | Ofqual choose the objective "maintaining standard across school" instead of "optimizing grading accuracy for students". This leads to disproportionately downgrade high-performing cohorts from historically low-performing schools (e.g. An A student from low-performing schools was downgraded to B) <br><br> Ofqual also failed to take into account the bias that that school with more resources outperform schools with fewer resources |
-| Insufficient fine-grained model evaluation to discover biases | Failed to address teachers' inconsistency in evaluation across demographic groups, multiple disadvantages for some protected groups, and racial discrimination that is endemic in some schools. Besides that, Ofqual doesn't have enough data for small schools, and use only teacher-assessed grades to assign final grades, which leads to better grades for private school with smaller classes <br><br> These biases might be discovered through the public release of the model's predicted grades with fine-grained evaluation to understand the model's performance for different slices of data (e.g. for schools of different sizes and for students from different backgrounds) |
-| Lack of transparency | Ofqual failed to make important aspects of their auto-grader public before it was too late (e.g. objective of the system, how they use teacher's assessment), the public therefore can't express their concern. <br><br> The consideration came from good intention, but also means that the system didn't get sufficient independent, external scrutiny |
+| Setting the wrong objective | Ofqual choose the objective "maintaining standard across school" instead of "optimizing grading accuracy for students". This leads to disproportionately downgrade high-performing cohorts from historically low-performing schools (e.g. An A student from low-performing schools was downgraded to B) <br/><br/> Ofqual also failed to take into account the bias that that school with more resources outperform schools with fewer resources |
+| Insufficient fine-grained model evaluation to discover biases | Failed to address teachers' inconsistency in evaluation across demographic groups, multiple disadvantages for some protected groups, and racial discrimination that is endemic in some schools. Besides that, Ofqual doesn't have enough data for small schools, and use only teacher-assessed grades to assign final grades, which leads to better grades for private school with smaller classes <br/><br/> These biases might be discovered through the public release of the model's predicted grades with fine-grained evaluation to understand the model's performance for different slices of data (e.g. for schools of different sizes and for students from different backgrounds) |
+| Lack of transparency | Ofqual failed to make important aspects of their auto-grader public before it was too late (e.g. objective of the system, how they use teacher's assessment), the public therefore can't express their concern. <br/><br/> The consideration came from good intention, but also means that the system didn't get sufficient independent, external scrutiny |
 
 The boundary between what should be automated by algorithms and what should not is murky. A clearer boundary can only be achieved with more investments in time and resources from AI developers, the public and the authorities.
 
@@ -1929,8 +1966,8 @@ Solution:
 | -- | -- |
 | **Discover sources for model biases** | Bias can come from any step during a project lifecycle <li>*Training data* - might be biases against less represented group</li> <li>*Labeling* - the more annotators have to rely on their subjective experience, the more room for human biases</li><li> *Feature engineering* - features related to legally protected class (e.g. ethnicity, gender, religious practices). For example, zip code and high school diplomas are correlated to race </li><ul><li> Technique to tackle this: [AIF360](https://github.com/Trusted-AI/AIF360), [Infogram method](https://docs.h2o.ai/h2o/latest-stable/h2o-docs/admissible.html)</li></ul><li> *Model's objective* - prioritizing model's performance on all users can skew the model towards the majority group of user</li><li> *Evaluation* - The need of adequate, fine-grained evaluation (sliced-based evaluation)</li> |
 | **Understand the limitations of data-driven approach** | Socioeconomic and cultural aspects, identify blind spot caused by too much reliance on data <li>Example: To build equtiable automated grading system, it's essential to work with domain experts to understand the demographic distribution of student population and how socioeconomic factors get reflected in the historical performance data</li>
-| **Understand the trade-offs between different desiderata** | <li>Privacy vs accuracy trade-off</li> The accuracy of differential privacy models drops much more for the underrepresented classes and subgroups <br><br><li>Compactness vs fairness trade-off</li> Model compression technique amplify algorithmic harm when the protected feature (e.g. sex, race, disability) is in the long tail of the distribution. It is found that pruning incurs a far higher disparate impact than is observed for the quantization techniques <br><br>Allocating more resources to auditing model behavior is recommended to avoid unintended harm |
-| **Act early** | Companies might decide to bypass ethical issues in ML models to save cost and time, only to discover risks in the future when they end up costing a lot more <br><br> The earlier in the development cycle of an ML system that you start thinking about how this system will affect the life of users and what biases your system might have, the cheaper it will be to address these biases |
+| **Understand the trade-offs between different desiderata** | <li>Privacy vs accuracy trade-off</li> The accuracy of differential privacy models drops much more for the underrepresented classes and subgroups <br/><br/><li>Compactness vs fairness trade-off</li> Model compression technique amplify algorithmic harm when the protected feature (e.g. sex, race, disability) is in the long tail of the distribution. It is found that pruning incurs a far higher disparate impact than is observed for the quantization techniques <br/><br/>Allocating more resources to auditing model behavior is recommended to avoid unintended harm |
+| **Act early** | Companies might decide to bypass ethical issues in ML models to save cost and time, only to discover risks in the future when they end up costing a lot more <br/><br/> The earlier in the development cycle of an ML system that you start thinking about how this system will affect the life of users and what biases your system might have, the cheaper it will be to address these biases |
 | **Create model cards** | Models cards are short documents accompanying trained model that provide information on how these models were trained and evaluated. Models cards are a step toward increasing transparency into the development of ML models. Tools: [Tensorflow](https://github.com/tensorflow/model-card-toolkit), [Metaflow](https://docs.metaflow.org/metaflow/visualizing-results/effortless-task-inspection-with-default-cards), [Scikit-learn](https://cloud.google.com/blog/products/ai-machine-learning/create-a-model-card-with-scikit-learn) |
 | **Establish processes for mitigating biases** | Systematic process reduce room for human error. E.g. Google's [recommended best practices for responsible AI](https://ai.google/responsibility/responsible-ai-practices/), IBM's [AI Fairness 360](https://ai-fairness-360.org/) |
 | **Stay up-to-date with responsible AI** | [ACM FAccT Conference](https://facctconference.org/index.html), the [Partnership on AI](https://partnershiponai.org/), the [Alan Turing Institute’s Fairness, Transparency, Privacy group](https://www.turing.ac.uk/research/interest-groups/fairness-transparency-privacy), and the [AI Now Institute](https://ainowinstitute.org/) |
