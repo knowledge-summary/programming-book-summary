@@ -1,6 +1,7 @@
-b# Designing Machine Learning Systems - by Chip Huyen
+# Designing Machine Learning Systems - by Chip Huyen
 
 # Table of Contents
+- [Designing Machine Learning Systems - by Chip Huyen](#designing-machine-learning-systems---by-chip-huyen)
 - [Table of Contents](#table-of-contents)
 - [Chapter 1: Overview of Machine Learning Systems](#chapter-1-overview-of-machine-learning-systems)
   - [When to use Machine Learning](#when-to-use-machine-learning)
@@ -16,7 +17,7 @@ b# Designing Machine Learning Systems - by Chip Huyen
 - [Chapter 3: Data Engineering Fundamentals](#chapter-3-data-engineering-fundamentals)
   - [Data sources](#data-sources)
   - [Data formats](#data-formats)
-    - [Row-major vs Column-Major Format](#row-major-vs-column-major-format)
+    - [Row-Major vs Column-Major Format](#row-major-vs-column-major-format)
     - [Text vs Binary Format](#text-vs-binary-format)
   - [Data Models](#data-models)
     - [Relational Model](#relational-model)
@@ -270,7 +271,7 @@ The process of conveting a data structure of object state into a format that can
 | Pickle | Binary | No | Python, PyTorch seralization |
 
 
-### Row-major vs Column-Major Format
+### Row-Major vs Column-Major Format
 **CSV** is row-major, **parquet** is column-major. Row-major means that consecutive elements in a row are stored next to each other, same for column-major.
 
 Overall, row-major formats are better when you have to do a lot of writes, whereas column-major formats are better when you have to do a lot of column-based reads.
