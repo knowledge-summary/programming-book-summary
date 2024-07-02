@@ -80,15 +80,15 @@ Steps:
    - Example: Batch processing - throughput, online system - response time (a distribution of values, using percentile is better than using average)
 
 ### Describing Performance
-Latency and response time is not the same. Response time is what the user see.
+Latency and response time is not the same. Response time is what the user see, which includes network delays and queueing delays.
 
 Percentiles are abbreviated, median as p50, 95th percentile as p95. High percentiles of response times, also known as tail latencies are important. Slowest requests can be associated with valuable customers. 
 
-Head-of-line blocking - queuing delay
+Head-of-line blocking - queuing delay where slow requests hold up the processing of subsequent requests and cause slow overall response time due to the time waiting for prior request to be completed
 
 Tail latency amplification - Even if only a small percentage of backend calls are slow, the chance of getting a slow call increases if an end-user request requires multiple backend calls, and so a higher proportion of end-user requests end up being slow
 
-Approximation algorithm - Forward decay, t-digest, HdrHistogram
+Approximation algorithm to calculate response time percentiles - Forward decay, t-digest, HdrHistogram
 
 You need to rethink your architecture on every order of magnitude load increase.
 - Scaling up (vertical scaling, moving to a more powerful machine)
@@ -99,25 +99,30 @@ An architecture that scales well for a particular application is built around as
 ### Case study: Twitter
 **Main Operations**: Post tweet and home timeline  
 **Tweet volume**: 4.6k requests/sec on average, over 12k/sec at peak  
-**Problem**: fan-out  
+**Problem**: fan-out (each user follows many people, and each user is followed by many people)  
 **Approach**:
 - Query home timeline on the spot  
 - Cache home timeline  
 
 **Load parameter**: The distribution of followers per user (weighted by how often those users tweet)  
-**Final solution**: Hybrid of 2 approaches
+**Final solution**:  
+Hybrid of 2 approaches
+- Approach 1 (Query home timeline on the spot) works better for users/celebrities with a lot of followers
+- Approach 2 (Cache home timeline) works better for general public because the average rate of published tweets is almost two orders of magnitude lower than the rate of home timeline reads
 
 ## Maintainability
 We can and should design software in such a way that it will hopefully minimize pain during maintenance, and thus avoid creating legacy software ourselves.
 
 Three design principles of for software systems
-- Operability
-- Simplicity
-- Evolvability (extensibility, modifiability, plasticity)
+- Operability - Making Life Easy for Operations
+- Simplicity - Managing Complexity
+- Evolvability (also known as extensibility, modifiability, plasticity) - Make Change Easy
 
-"Good operations can often work around the limitations of bad (or incomplete) software, but good software cannot run reliably with bad operations"
+Operations team keeps a software system run smoothly by monitoring the health of the system, tracking down problems, maintaining security of the system.
 
-A big ball of mud
+Good operability means making routine tasks easy, allowing the operations team to focus their efforts on high-value activities. These includes providing visibility into runtime behavior, providing good support for automation, self-healing when appropriate, predictable behavior.
+
+A big ball of mud - A software project mired in complexity
 
 Possible symptoms of complexity:
 - Explosion of the state space
@@ -127,7 +132,7 @@ Possible symptoms of complexity:
 - Hacks aimed at solving performance problems
 - Special casing to work around issues elsewhere
 
-Hidden assumptions, unintended consequences, unexpected interactions.
+Hidden assumptions, unintended consequences, unexpected interactions might be more easily overlooked when a system is harder for developers to understand.
 
 Use abstraction to reduce complexity.
 
@@ -140,11 +145,11 @@ New changes:
 - Legal or regulatory requirements change
 - Growth of the system forces architectual changes
 
-Agile working pattern - test-driven development (TDD) and refactoring.
+Agile working pattern provides a framework for adapting to change, such as test-driven development (TDD) and refactoring.
 
 An application has
 - Functional requirements (what it should do, such as allowing data to be stored, retrieved, searched, and processed in various ways)
-- Nonfunctional requirements (general properties like security, reliability, compliance, scalability, compatibility, and maintainability))
+- Nonfunctional requirements (general properties like security, reliability, compliance, scalability, compatibility, and maintainability)
 
 
 # Chapter 2. Data Models And Query Language
